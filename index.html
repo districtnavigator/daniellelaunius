@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10 Days Till Christmas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cinzel+Decorative:wght@700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', Georgia, serif;
+            background: #0a0a1a;
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Cursor Trail */
+        .cursor-trail {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            font-size: 1rem;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        /* Click Particles */
+        .click-particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9997;
+            font-size: 1.5rem;
+            animation: clickBurst 0.8s ease-out forwards;
+        }
+
+        @keyframes clickBurst {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(0) translateY(-50px);
+                opacity: 0;
+            }
+        }
+
+        /* Starry Sky Background */
+        .stars-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .star {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle var(--duration) ease-in-out infinite;
+            animation-delay: var(--delay);
+            will-change: opacity, transform;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: var(--base-opacity); }
+            50% { opacity: 1; }
+        }
+
+        /* Aurora Borealis */
+        .aurora-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            overflow: hidden;
+            opacity: 0.6;
+        }
+
+        .aurora {
+            position: absolute;
+            width: 200%;
+            height: 50%;
+            top: -10%;
+            left: -50%;
+            background: linear-gradient(
+                180deg,
+                transparent 0%,
+                rgba(0, 255, 128, 0.1) 20%,
+                rgba(0, 200, 255, 0.15) 40%,
+                rgba(100, 0, 255, 0.1) 60%,
+                transparent 100%
+            );
+            animation: aurora 15s ease-in-out infinite;
+            transform-origin: center top;
+            will-change: transform, opacity;
+        }
+
+        .aurora:nth-child(2) {
+            animation-delay: -5s;
+            background: linear-gradient(
+                180deg,
+                transparent 0%,
+                rgba(255, 0, 128, 0.08) 20%,
+                rgba(0, 255, 200, 0.12) 40%,
+                rgba(50, 100, 255, 0.08) 60%,
+                transparent 100%
+            );
+        }
+
+        .aurora:nth-child(3) {
+            animation-delay: -10s;
+            background: linear-gradient(
+                180deg,
+                transparent 0%,
+                rgba(100, 255, 100, 0.1) 30%,
+                rgba(0, 150, 255, 0.15) 50%,
+                transparent 100%
+            );
+        }
+
+        @keyframes aurora {
+            0%, 100% {
+                transform: translateX(-10%) skewX(-5deg) scaleY(1);
+                opacity: 0.6;
+            }
+            25% {
+                transform: translateX(5%) skewX(5deg) scaleY(1.2);
+                opacity: 0.8;
+            }
+            50% {
+                transform: translateX(10%) skewX(-3deg) scaleY(0.8);
+                opacity: 0.5;
+            }
+            75% {
+                transform: translateX(-5%) skewX(3deg) scaleY(1.1);
+                opacity: 0.7;
+            }
+        }
+
+        /* Animated Background Gradient */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background: linear-gradient(
+                135deg,
+                #0a1628 0%,
+                #1a2a4a 25%,
+                #0d2818 50%,
+                #1a3a2a 75%,
+                #0a1628 100%
+            );
+            background-size: 400% 400%;
+            animation: gradientShift 20s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            25% { background-position: 100% 50%; }
+            50% { background-position: 100% 100%; }
+            75% { background-position: 0% 100%; }
+        }
+
+        /* Christmas Lights */
+        .christmas-lights {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            pointer-events: none;
+        }
+
+        .lights-wire {
+            position: absolute;
+            top: 15px;
+            width: 100%;
+            height: 3px;
+            background: #222;
+            border-radius: 2px;
+        }
+
+        .light-bulb {
+            position: relative;
+            width: 18px;
+            height: 28px;
+            margin: 0 25px;
+            margin-top: 12px;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            animation: glow var(--glow-duration) ease-in-out infinite;
+            animation-delay: var(--delay);
+            box-shadow: 0 0 15px var(--color), 0 0 25px var(--color);
+            will-change: opacity, filter;
+        }
+
+        .light-bulb::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 10px;
+            background: #333;
+            border-radius: 2px 2px 0 0;
+        }
+
+        @keyframes glow {
+            0%, 100% { opacity: 1; filter: brightness(1.2); }
+            50% { opacity: 0.6; filter: brightness(0.8); }
+        }
+
+        /* Floating Ornaments */
+        .ornaments-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .floating-ornament {
+            position: absolute;
+            animation: floatOrnament var(--duration) ease-in-out infinite;
+            animation-delay: var(--delay);
+            opacity: 0.7;
+            will-change: transform;
+        }
+
+        @keyframes floatOrnament {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg) scale(1);
+            }
+            25% {
+                transform: translateY(-20px) rotate(10deg) scale(1.05);
+            }
+            50% {
+                transform: translateY(-10px) rotate(-5deg) scale(1);
+            }
+            75% {
+                transform: translateY(-25px) rotate(-10deg) scale(1.03);
+            }
+        }
+
+        /* Snowflakes */
+        .snowflakes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        .snowflake {
+            position: absolute;
+            color: #fff;
+            animation: fall linear infinite;
+            will-change: transform;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-10vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% {
+                transform: translateY(110vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Fog/Mist Effect */
+        .fog-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 30%;
+            z-index: 4;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .fog {
+            position: absolute;
+            bottom: -50%;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(
+                to top,
+                rgba(255, 255, 255, 0.1) 0%,
+                rgba(200, 220, 255, 0.05) 50%,
+                transparent 100%
+            );
+            animation: fogDrift 30s linear infinite;
+            will-change: transform;
+        }
+
+        .fog:nth-child(2) {
+            animation-delay: -15s;
+            opacity: 0.5;
+        }
+
+        @keyframes fogDrift {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0%); }
+        }
+
+        /* Parallax Container */
+        .parallax-container {
+            position: relative;
+            z-index: 5;
+            min-height: 100vh;
+        }
+
+        /* Main Container - 3D */
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 20px 40px;
+            transform-style: preserve-3d;
+        }
+
+        /* 3D Header */
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            transform: translateZ(50px);
+            perspective: 1000px;
+        }
+
+        h1 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 5rem;
+            font-weight: 400;
+            background: linear-gradient(
+                135deg,
+                #ffd700 0%,
+                #ffec8b 25%,
+                #ffd700 50%,
+                #daa520 75%,
+                #ffd700 100%
+            );
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 3s ease-in-out infinite;
+            text-shadow: none;
+            filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.5));
+            transform: translateZ(30px);
+            position: relative;
+        }
+
+        h1::after {
+            content: '10 Days Till Christmas';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 100%;
+            background: linear-gradient(135deg, #8b4513 0%, #654321 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            z-index: -1;
+            filter: blur(2px);
+        }
+
+        @keyframes shimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .subtitle {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 1.3rem;
+            color: #a8d4ff;
+            font-style: normal;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            text-shadow: 0 0 20px rgba(168, 212, 255, 0.5);
+            animation: glowPulse 2s ease-in-out infinite;
+            transform: translateZ(20px);
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { text-shadow: 0 0 20px rgba(168, 212, 255, 0.5); }
+            50% { text-shadow: 0 0 40px rgba(168, 212, 255, 0.8), 0 0 60px rgba(168, 212, 255, 0.4); }
+        }
+
+        .header-icon {
+            display: inline-block;
+            width: 70px;
+            height: 70px;
+            margin: 0 20px;
+            vertical-align: middle;
+            animation: ornamentSwing 3s ease-in-out infinite;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));
+        }
+
+        .header-icon:first-of-type { animation-delay: 0s; }
+        .header-icon:last-of-type { animation-delay: 1.5s; }
+
+        @keyframes ornamentSwing {
+            0%, 100% { transform: rotate(-10deg); }
+            50% { transform: rotate(10deg); }
+        }
+
+        /* 3D Countdown Display */
+        .countdown-display {
+            text-align: center;
+            background: linear-gradient(
+                145deg,
+                rgba(255,255,255,0.1) 0%,
+                rgba(255,255,255,0.05) 100%
+            );
+            border-radius: 30px;
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            transform: translateZ(40px) rotateX(2deg);
+            transform-style: preserve-3d;
+            position: relative;
+        }
+
+        .countdown-display::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #ffd700, #c41e3a, #ffd700);
+            border-radius: 32px;
+            z-index: -1;
+            opacity: 0.4;
+        }
+
+        .countdown-display h2 {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 1.8rem;
+            color: #f5d742;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(245, 215, 66, 0.5);
+            transform: translateZ(10px);
+        }
+
+        .days-remaining {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 7rem;
+            font-weight: bold;
+            background: linear-gradient(
+                180deg,
+                #ff6b6b 0%,
+                #ff4757 50%,
+                #c41e3a 100%
+            );
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 5px 20px rgba(255, 71, 87, 0.5));
+            transform: translateZ(30px);
+            position: relative;
+        }
+
+        .days-label {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: #f5d742;
+            margin-top: 10px;
+            text-shadow: 0 0 15px rgba(245, 215, 66, 0.4);
+            transform: translateZ(5px);
+        }
+
+        /* 3D Carousel Styles */
+        .carousel-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            margin: 50px 0;
+            transform: translateZ(60px);
+            position: relative;
+        }
+
+        /* Carousel Glow Rays */
+        .carousel-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(
+                circle,
+                rgba(255, 215, 0, 0.2) 0%,
+                rgba(255, 215, 0, 0.1) 30%,
+                transparent 70%
+            );
+            animation: glowRays 3s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes glowRays {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.6;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.2);
+                opacity: 1;
+            }
+        }
+
+        .carousel-container {
+            width: 300px;
+            height: 420px;
+            perspective: 1200px;
+            position: relative;
+        }
+
+        /* Carousel Reflection */
+        .carousel-reflection {
+            position: absolute;
+            bottom: -150px;
+            left: 0;
+            width: 100%;
+            height: 150px;
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0.1) 0%,
+                transparent 100%
+            );
+            transform: rotateX(180deg) scaleY(0.5);
+            filter: blur(5px);
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .carousel {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transform-style: preserve-3d;
+            transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            will-change: transform;
+        }
+
+        .carousel.animating-intro {
+            transition: transform 2.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .carousel-card {
+            position: absolute;
+            width: 220px;
+            height: 300px;
+            left: 40px;
+            top: 50px;
+            background: linear-gradient(
+                145deg,
+                #c41e3a 0%,
+                #8b0000 50%,
+                #5c0011 100%
+            );
+            border-radius: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            color: #fff;
+            border: 4px solid;
+            border-image: linear-gradient(145deg, #ffd700, #ffec8b, #ffd700) 1;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            backface-visibility: hidden;
+            cursor: pointer;
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+            transform-style: preserve-3d;
+            overflow: hidden;
+        }
+
+        .carousel-card:hover {
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 30px rgba(255, 215, 66, 0.3);
+        }
+
+        .carousel-card .day-number {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 4.5rem;
+            font-weight: bold;
+            background: linear-gradient(180deg, #ffd700, #ffec8b, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 3px 10px rgba(255, 215, 0, 0.5));
+            transform: translateZ(20px);
+        }
+
+        .carousel-card .day-date {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            margin-top: 15px;
+            opacity: 0.95;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            transform: translateZ(15px);
+        }
+
+        .carousel-card .day-label {
+            font-family: 'Great Vibes', cursive;
+            font-size: 1.4rem;
+            margin-top: 8px;
+            color: #ffec8b;
+            transform: translateZ(10px);
+        }
+
+        .carousel-card.christmas {
+            background: linear-gradient(
+                145deg,
+                #ffd700 0%,
+                #daa520 50%,
+                #b8860b 100%
+            );
+            color: #1a472a;
+        }
+
+        .carousel-card.christmas .day-number {
+            background: linear-gradient(180deg, #c41e3a, #8b0000);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 5.5rem;
+            filter: drop-shadow(0 3px 15px rgba(196, 30, 58, 0.5));
+        }
+
+        .card-santa-icon {
+            width: 100px;
+            height: 100px;
+            filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.3));
+        }
+
+        .carousel-card.christmas .day-label {
+            color: #1a472a;
+        }
+
+        /* Sparkle Particles around carousel */
+        .sparkle-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            height: 400px;
+            pointer-events: none;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #ffd700;
+            border-radius: 50%;
+            animation: sparkleFloat var(--duration) ease-in-out infinite;
+            animation-delay: var(--delay);
+            box-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700;
+        }
+
+        @keyframes sparkleFloat {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+                opacity: 0;
+            }
+            20% {
+                opacity: 1;
+            }
+            50% {
+                transform: translate(var(--tx), var(--ty)) scale(1.5);
+                opacity: 1;
+            }
+            80% {
+                opacity: 1;
+            }
+            100% {
+                transform: translate(calc(var(--tx) * 1.5), calc(var(--ty) * 1.5)) scale(0);
+                opacity: 0;
+            }
+        }
+
+        /* 3D Navigation Arrows */
+        .nav-arrow {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(
+                145deg,
+                #c41e3a 0%,
+                #8b0000 100%
+            );
+            border: 4px solid #ffd700;
+            color: #ffd700;
+            font-size: 2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+            z-index: 10;
+            transform: translateZ(30px);
+            position: relative;
+        }
+
+        .nav-arrow:hover {
+            transform: translateZ(30px) scale(1.1);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.5);
+        }
+
+        .nav-arrow:active {
+            transform: translateZ(30px) scale(0.95);
+        }
+
+        /* Current Day Info - 3D */
+        .current-day-info {
+            text-align: center;
+            margin-top: 30px;
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 1.4rem;
+            color: #f5d742;
+            text-shadow: 0 0 20px rgba(245, 215, 66, 0.5);
+            transform: translateZ(20px);
+        }
+
+        /* 3D Footer */
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 30px;
+            color: #a8d4ff;
+            font-family: 'Great Vibes', cursive;
+            font-size: 2rem;
+            text-shadow: 0 0 20px rgba(168, 212, 255, 0.5);
+            transform: translateZ(10px);
+        }
+
+        .footer-icon {
+            width: 40px;
+            height: 40px;
+            vertical-align: middle;
+            margin: 0 15px;
+        }
+
+        /* Music Toggle */
+        .music-toggle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #c41e3a, #8b0000);
+            border: 3px solid #ffd700;
+            cursor: pointer;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+            transition: all 0.3s ease;
+            padding: 12px;
+        }
+
+        .music-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 30px rgba(255, 215, 0, 0.3);
+        }
+
+        .music-toggle.muted {
+            opacity: 0.5;
+        }
+
+        .music-icon {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Mobile message */
+        .mobile-message {
+            display: none;
+            min-height: 100vh;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #1a472a 0%, #0d2818 100%);
+        }
+
+        .mobile-message .santa-icon {
+            width: 150px;
+            height: 150px;
+            margin-bottom: 30px;
+            animation: bounce 2s ease-in-out infinite;
+            filter: drop-shadow(0 10px 30px rgba(0,0,0,0.5));
+        }
+
+        .mobile-icons {
+            margin-top: 30px;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .mobile-small-icon {
+            width: 50px;
+            height: 50px;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .mobile-message h2 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2.5rem;
+            color: #f5d742;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .mobile-message p {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            color: #fff;
+            max-width: 400px;
+            line-height: 1.6;
+        }
+
+        .mobile-message .hearts {
+            margin-top: 30px;
+            font-size: 2rem;
+        }
+
+        /* Hide main content on mobile, show message */
+        @media (max-width: 1024px) {
+            .bg-gradient,
+            .stars-container,
+            .aurora-container,
+            .christmas-lights,
+            .ornaments-container,
+            .snowflakes,
+            .fog-container,
+            .parallax-container,
+            .music-toggle {
+                display: none !important;
+            }
+
+            .mobile-message {
+                display: flex;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Message -->
+    <div class="mobile-message">
+        <img src="icons/614133-winter/svg/009-santa-claus.svg" alt="Santa" class="santa-icon">
+        <h2>Santa's workshop doesn't fit on small screens!</h2>
+        <p>Please visit on a computer to see your Christmas surprise.</p>
+        <div class="mobile-icons">
+            <img src="icons/614133-winter/svg/043-pine.svg" alt="" class="mobile-small-icon">
+            <img src="icons/614133-winter/svg/015-present.svg" alt="" class="mobile-small-icon">
+            <img src="icons/614133-winter/svg/043-pine.svg" alt="" class="mobile-small-icon">
+        </div>
+    </div>
+
+    <!-- Background Gradient -->
+    <div class="bg-gradient"></div>
+
+    <!-- Stars -->
+    <div class="stars-container" id="stars"></div>
+
+    <!-- Aurora Borealis -->
+    <div class="aurora-container">
+        <div class="aurora"></div>
+        <div class="aurora"></div>
+        <div class="aurora"></div>
+    </div>
+
+    <!-- Christmas Lights -->
+    <div class="christmas-lights" id="christmasLights">
+        <div class="lights-wire"></div>
+    </div>
+
+    <!-- Floating Ornaments -->
+    <div class="ornaments-container" id="ornaments"></div>
+
+    <!-- Snowflakes -->
+    <div class="snowflakes" id="snowflakes"></div>
+
+    <!-- Fog -->
+    <div class="fog-container">
+        <div class="fog"></div>
+        <div class="fog"></div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="parallax-container" id="parallax">
+        <div class="container">
+            <header>
+                <h1>
+                    <img src="icons/614133-winter/svg/043-pine.svg" alt="" class="header-icon">
+                    10 Days Till Christmas
+                    <img src="icons/614133-winter/svg/043-pine.svg" alt="" class="header-icon">
+                </h1>
+                <p class="subtitle">A Festive Countdown Journey</p>
+            </header>
+
+            <div class="countdown-display">
+                <h2>Days Until Christmas</h2>
+                <div class="days-remaining" id="countdown">365</div>
+                <div class="days-label">days to go</div>
+            </div>
+
+            <div class="carousel-wrapper">
+                <button class="nav-arrow" id="prevBtn">&#10094;</button>
+
+                <div class="carousel-container">
+                    <div class="carousel-glow"></div>
+                    <div class="sparkle-container" id="sparkles"></div>
+                    <div class="carousel" id="carousel"></div>
+                    <div class="carousel-reflection"></div>
+                </div>
+
+                <button class="nav-arrow" id="nextBtn">&#10095;</button>
+            </div>
+
+            <div class="current-day-info" id="currentDayInfo">
+                Click a card or use arrows to navigate
+            </div>
+
+            <footer>
+                <p>
+                    <img src="icons/614133-winter/svg/015-present.svg" alt="" class="footer-icon">
+                    Merry Christmas!
+                    <img src="icons/614133-winter/svg/015-present.svg" alt="" class="footer-icon">
+                </p>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Music Toggle -->
+    <button class="music-toggle" id="musicToggle" title="Toggle Music">
+        <img src="icons/614133-winter/svg/012-bells.svg" alt="Music" class="music-icon">
+    </button>
+
+    <!-- Christmas Music (royalty-free) -->
+    <audio id="christmasMusic" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // ========== CURSOR TRAIL (snowflakes only) ==========
+        const trailChars = ['❄', '❅', '❆'];
+        let lastTrailTime = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            const now = Date.now();
+            if (now - lastTrailTime > 100) { // Throttled to 100ms
+                lastTrailTime = now;
+                const trail = document.createElement('div');
+                trail.className = 'cursor-trail';
+                trail.textContent = trailChars[Math.floor(Math.random() * trailChars.length)];
+                trail.style.left = e.clientX + 'px';
+                trail.style.top = e.clientY + 'px';
+                document.body.appendChild(trail);
+
+                setTimeout(() => {
+                    trail.style.opacity = '0';
+                }, 10);
+
+                setTimeout(() => trail.remove(), 500);
+            }
+        });
+
+        // ========== CLICK PARTICLES ==========
+        document.addEventListener('click', (e) => {
+            const particles = ['✨', '⭐', '❄'];
+            for (let i = 0; i < 5; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'click-particle';
+                particle.textContent = particles[Math.floor(Math.random() * particles.length)];
+                particle.style.left = e.clientX + 'px';
+                particle.style.top = e.clientY + 'px';
+
+                const angle = (i / 5) * Math.PI * 2;
+                const distance = 40 + Math.random() * 30;
+                particle.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+                particle.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 800);
+            }
+        });
+
+        // ========== PARALLAX EFFECT (throttled) ==========
+        let parallaxTimeout;
+        document.addEventListener('mousemove', (e) => {
+            if (parallaxTimeout) return;
+            parallaxTimeout = setTimeout(() => {
+                parallaxTimeout = null;
+                const x = (e.clientX - window.innerWidth / 2) / window.innerWidth;
+                const y = (e.clientY - window.innerHeight / 2) / window.innerHeight;
+
+                document.querySelector('.container').style.transform =
+                    `rotateY(${x * 2}deg) rotateX(${-y * 2}deg)`;
+            }, 50);
+        });
+
+        // ========== CREATE STARS ==========
+        function createStars() {
+            const container = document.getElementById('stars');
+            for (let i = 0; i < 80; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = Math.random() * 3 + 1;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
+                star.style.setProperty('--delay', Math.random() * 5 + 's');
+                star.style.setProperty('--base-opacity', Math.random() * 0.5 + 0.3);
+                container.appendChild(star);
+            }
+        }
+
+        // ========== CREATE CHRISTMAS LIGHTS ==========
+        function createChristmasLights() {
+            const container = document.getElementById('christmasLights');
+            const colors = ['#ff0000', '#00ff00', '#0066ff', '#ffff00', '#ff00ff', '#00ffff'];
+            const numLights = 15;
+
+            for (let i = 0; i < numLights; i++) {
+                const light = document.createElement('div');
+                light.className = 'light-bulb';
+                const color = colors[i % colors.length];
+                light.style.setProperty('--color', color);
+                light.style.background = color;
+                light.style.setProperty('--glow-duration', (Math.random() * 1 + 1) + 's');
+                light.style.setProperty('--delay', (Math.random() * 2) + 's');
+                container.appendChild(light);
+            }
+        }
+
+        // ========== CREATE FLOATING ORNAMENTS ==========
+        function createFloatingOrnaments() {
+            const container = document.getElementById('ornaments');
+            const ornamentIcons = [
+                'icons/614133-winter/svg/021-bauble.svg',
+                'icons/614133-winter/svg/019-snowflake.svg',
+                'icons/614133-winter/svg/015-present.svg',
+                'icons/614133-winter/svg/012-bells.svg',
+                'icons/614133-winter/svg/025-candy-cane.svg',
+                'icons/614133-winter/svg/049-snowman.svg'
+            ];
+
+            for (let i = 0; i < 8; i++) {
+                const ornament = document.createElement('img');
+                ornament.className = 'floating-ornament';
+                ornament.src = ornamentIcons[Math.floor(Math.random() * ornamentIcons.length)];
+                ornament.alt = '';
+                ornament.style.left = Math.random() * 100 + '%';
+                ornament.style.top = Math.random() * 100 + '%';
+                const size = Math.random() * 30 + 40;
+                ornament.style.width = size + 'px';
+                ornament.style.height = size + 'px';
+                ornament.style.setProperty('--duration', (Math.random() * 5 + 5) + 's');
+                ornament.style.setProperty('--delay', Math.random() * 5 + 's');
+                container.appendChild(ornament);
+            }
+        }
+
+        // ========== CREATE SNOWFLAKES ==========
+        function createSnowflakes() {
+            const container = document.getElementById('snowflakes');
+            const snowflakeChars = ['❄', '❅', '❆'];
+
+            for (let i = 0; i < 25; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                snowflake.textContent = snowflakeChars[Math.floor(Math.random() * snowflakeChars.length)];
+                snowflake.style.left = Math.random() * 100 + '%';
+                snowflake.style.animationDuration = (Math.random() * 8 + 10) + 's';
+                snowflake.style.animationDelay = (Math.random() * 10) + 's';
+                snowflake.style.fontSize = (Math.random() * 1.2 + 0.6) + 'rem';
+                snowflake.style.opacity = Math.random() * 0.5 + 0.5;
+                container.appendChild(snowflake);
+            }
+        }
+
+        // ========== CREATE SPARKLES ==========
+        function createSparkles() {
+            const container = document.getElementById('sparkles');
+
+            for (let i = 0; i < 10; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+
+                const angle = (i / 10) * Math.PI * 2;
+                const radius = 160;
+                const x = Math.cos(angle) * radius + 200;
+                const y = Math.sin(angle) * radius + 200;
+
+                sparkle.style.left = x + 'px';
+                sparkle.style.top = y + 'px';
+                sparkle.style.setProperty('--duration', (Math.random() * 2 + 3) + 's');
+                sparkle.style.setProperty('--delay', Math.random() * 2 + 's');
+                sparkle.style.setProperty('--tx', (Math.random() * 20 - 10) + 'px');
+                sparkle.style.setProperty('--ty', (Math.random() * 20 - 10) + 'px');
+
+                container.appendChild(sparkle);
+            }
+        }
+
+        // ========== CAROUSEL ==========
+        const days = [
+            { day: 1, date: 'December 15', label: 'Day One', href: 'day1.html' },
+            { day: 2, date: 'December 16', label: 'Day Two', href: 'day2.html' },
+            { day: 3, date: 'December 17', label: 'Day Three', href: 'day3.html' },
+            { day: 4, date: 'December 18', label: 'Day Four', href: 'day4.html' },
+            { day: 5, date: 'December 19', label: 'Day Five', href: 'day5.html' },
+            { day: 6, date: 'December 20', label: 'Day Six', href: 'day6.html' },
+            { day: 7, date: 'December 21', label: 'Day Seven', href: 'day7.html' },
+            { day: 8, date: 'December 22', label: 'Day Eight', href: 'day8.html' },
+            { day: 9, date: 'December 23', label: 'Day Nine', href: 'day9.html' },
+            { day: 10, date: 'December 24', label: 'Day Ten', href: 'day10.html' },
+            { day: 'christmas', date: 'December 25', label: 'Christmas Day!', href: 'christmas.html', isChristmas: true }
+        ];
+
+        const totalCards = days.length;
+        const anglePerCard = 360 / totalCards;
+        const radius = 350;
+        let currentIndex = 0;
+        let currentRotation = 0;
+
+        function createCarousel() {
+            const carousel = document.getElementById('carousel');
+
+            days.forEach((dayData, index) => {
+                const card = document.createElement('a');
+                card.href = dayData.href;
+                card.className = 'carousel-card' + (dayData.isChristmas ? ' christmas' : '');
+
+                const angle = index * anglePerCard;
+                card.style.transform = `rotateY(${angle}deg) translateZ(${radius}px)`;
+
+                card.innerHTML = dayData.isChristmas ? `
+                    <img src="icons/614133-winter/svg/009-santa-claus.svg" alt="Santa" class="card-santa-icon">
+                    <span class="day-date">${dayData.date}</span>
+                    <span class="day-label">${dayData.label}</span>
+                ` : `
+                    <span class="day-number">${dayData.day}</span>
+                    <span class="day-date">${dayData.date}</span>
+                    <span class="day-label">${dayData.label}</span>
+                `;
+
+                card.dataset.index = index;
+                carousel.appendChild(card);
+            });
+        }
+
+        function rotateToIndex(index) {
+            const carousel = document.getElementById('carousel');
+            carousel.classList.remove('animating-intro');
+            currentIndex = index;
+            currentRotation = -index * anglePerCard;
+            carousel.style.transform = `rotateY(${currentRotation}deg)`;
+            updateDayInfo();
+        }
+
+        function goToPrev() {
+            const newIndex = (currentIndex - 1 + totalCards) % totalCards;
+            rotateToIndex(newIndex);
+        }
+
+        function goToNext() {
+            const newIndex = (currentIndex + 1) % totalCards;
+            rotateToIndex(newIndex);
+        }
+
+        function updateDayInfo() {
+            const dayData = days[currentIndex];
+            document.getElementById('currentDayInfo').textContent = `${dayData.date} - ${dayData.label}`;
+        }
+
+        function getCurrentCountdownDay() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const startDate = new Date(year, 11, 15);
+            const diffTime = now - startDate;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            if (diffDays < 0) return 0;
+            if (diffDays > 10) return 10;
+            return diffDays;
+        }
+
+        function playIntroAnimation() {
+            const carousel = document.getElementById('carousel');
+            const targetIndex = getCurrentCountdownDay();
+            const startIndex = (targetIndex + 1) % totalCards;
+            const longWayAngle = 360 - anglePerCard;
+
+            carousel.style.transition = 'none';
+            currentIndex = startIndex;
+            currentRotation = -startIndex * anglePerCard;
+            carousel.style.transform = `rotateY(${currentRotation}deg)`;
+            carousel.offsetHeight;
+
+            setTimeout(() => {
+                carousel.classList.add('animating-intro');
+                carousel.style.transition = '';
+                const targetRotation = currentRotation - longWayAngle;
+                currentRotation = targetRotation;
+                currentIndex = targetIndex;
+                carousel.style.transform = `rotateY(${targetRotation}deg)`;
+                updateDayInfo();
+
+                setTimeout(() => {
+                    carousel.classList.remove('animating-intro');
+                    currentRotation = -targetIndex * anglePerCard;
+                    carousel.style.transition = 'none';
+                    carousel.style.transform = `rotateY(${currentRotation}deg)`;
+                    carousel.offsetHeight;
+                    carousel.style.transition = '';
+                }, 2600);
+            }, 100);
+        }
+
+        // ========== COUNTDOWN ANIMATION ==========
+        function getDaysUntilChristmas() {
+            const now = new Date();
+            const christmas = new Date(now.getFullYear(), 11, 25);
+            if (now > christmas) christmas.setFullYear(christmas.getFullYear() + 1);
+            return Math.ceil((christmas - now) / (1000 * 60 * 60 * 24));
+        }
+
+        function animateCountdown(from, to, duration) {
+            const element = document.getElementById('countdown');
+            const damping = 20 + 40 * (1 / duration);
+            const stiffness = 100 * (1 / duration);
+            let currentValue = from;
+            let velocity = 0;
+
+            function springStep() {
+                const displacement = currentValue - to;
+                const springForce = -stiffness * displacement;
+                const dampingForce = -damping * velocity;
+                velocity += (springForce + dampingForce) * 0.016;
+                currentValue += velocity * 0.016;
+                element.textContent = Math.round(currentValue);
+
+                if (Math.abs(currentValue - to) > 0.5 || Math.abs(velocity) > 0.5) {
+                    requestAnimationFrame(springStep);
+                } else {
+                    element.textContent = to;
+                }
+            }
+            requestAnimationFrame(springStep);
+        }
+
+        // ========== MUSIC TOGGLE ==========
+        const musicToggle = document.getElementById('musicToggle');
+        const music = document.getElementById('christmasMusic');
+        let isMuted = true;
+        music.volume = 0.3;
+        musicToggle.classList.add('muted');
+
+        musicToggle.addEventListener('click', () => {
+            if (isMuted) {
+                music.play();
+                musicToggle.classList.remove('muted');
+            } else {
+                music.pause();
+                musicToggle.classList.add('muted');
+            }
+            isMuted = !isMuted;
+        });
+
+        // ========== INITIALIZE ==========
+        createStars();
+        createChristmasLights();
+        createFloatingOrnaments();
+        createSnowflakes();
+        createSparkles();
+        createCarousel();
+
+        document.getElementById('prevBtn').addEventListener('click', goToPrev);
+        document.getElementById('nextBtn').addEventListener('click', goToNext);
+
+        setTimeout(() => {
+            animateCountdown(365, getDaysUntilChristmas(), 2.5);
+            playIntroAnimation();
+        }, 500);
+    </script>
+</body>
+</html>

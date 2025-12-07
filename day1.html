@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 1 - Sleigh Ride | 10 Days Till Christmas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cinzel+Decorative:wght@700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', Georgia, serif;
+            background: linear-gradient(135deg, #1a3a4a 0%, #0d2030 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 10px;
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+        }
+
+        .header h1 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2rem;
+            color: #ffd700;
+            margin-bottom: 3px;
+        }
+
+        .header p {
+            color: #a8d4ff;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #ffd700;
+            text-decoration: none;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s;
+        }
+
+        .back-link:hover {
+            transform: translateX(-5px);
+        }
+
+        .back-link img {
+            width: 30px;
+            height: 30px;
+        }
+
+        /* Game Container */
+        .game-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        #gameCanvas {
+            border: 4px solid #ffd700;
+            border-radius: 15px;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
+            cursor: pointer;
+        }
+
+        /* Score Display */
+        .score-display {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 1.3rem;
+            color: #ffd700;
+            margin-top: 8px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        /* Instructions */
+        .instructions {
+            margin-top: 5px;
+            text-align: center;
+            color: #a8d4ff;
+            font-size: 0.85rem;
+        }
+
+        /* Start/Game Over Overlay */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .overlay.hidden {
+            display: none;
+        }
+
+        .overlay h2 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 3rem;
+            color: #ffd700;
+            margin-bottom: 20px;
+        }
+
+        .overlay p {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .overlay .final-score {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 2rem;
+            color: #ff6b6b;
+            margin: 20px 0;
+        }
+
+        .play-btn {
+            background: linear-gradient(145deg, #c41e3a, #8b0000);
+            border: 3px solid #ffd700;
+            color: #ffd700;
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 1.3rem;
+            padding: 15px 40px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+        }
+
+        .high-score {
+            color: #a8d4ff;
+            margin-top: 15px;
+        }
+
+        /* Mobile message */
+        .mobile-message {
+            display: none;
+            min-height: 100vh;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .mobile-message img {
+            width: 120px;
+            margin-bottom: 20px;
+        }
+
+        .mobile-message h2 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2rem;
+            color: #f5d742;
+            margin-bottom: 15px;
+        }
+
+        .mobile-message p {
+            color: #fff;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 1024px) {
+            .header, .game-wrapper {
+                display: none !important;
+            }
+            .mobile-message {
+                display: flex;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Message -->
+    <div class="mobile-message">
+        <img src="icons/614133-winter/svg/009-santa-claus.svg" alt="Santa">
+        <h2>Santa's workshop doesn't fit on small screens!</h2>
+        <p>Please visit on a computer to play.</p>
+    </div>
+
+    <a href="index.html" class="back-link">
+        <span>←</span> Back to Calendar
+    </a>
+
+    <div class="header">
+        <h1>Day 1: Sleigh Ride</h1>
+        <p>December 15th</p>
+    </div>
+
+    <div class="game-wrapper">
+        <canvas id="gameCanvas" width="900" height="650"></canvas>
+        <div class="score-display">Score: <span id="currentScore">0</span></div>
+        <div class="instructions">Click or press Space to fly! Avoid the candy canes!</div>
+    </div>
+
+    <!-- Start Overlay -->
+    <div class="overlay" id="startOverlay">
+        <h2>Sleigh Ride</h2>
+        <img src="icons/614133-winter/svg/030-deer.svg" alt="Reindeer" style="width: 100px; margin: 20px;">
+        <p>Help the reindeer fly through the candy cane gates!</p>
+        <button class="play-btn" id="startBtn">Start Flying!</button>
+    </div>
+
+    <!-- Game Over Overlay -->
+    <div class="overlay hidden" id="gameOverOverlay">
+        <h2>Crash Landing!</h2>
+        <div class="final-score">Score: <span id="finalScore">0</span></div>
+        <p class="high-score">Best: <span id="highScore">0</span></p>
+        <button class="play-btn" id="restartBtn">Try Again</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Game state
+        let gameRunning = false;
+        let gameReady = false; // Shows reindeer but waits for click to start
+        let score = 0;
+        let highScore = localStorage.getItem('sleighRideHighScore') || 0;
+        document.getElementById('highScore').textContent = highScore;
+
+        // Reindeer properties
+        const reindeer = {
+            x: 100,
+            y: 250,
+            width: 60,
+            height: 45,
+            velocity: 0,
+            gravity: 0.12,
+            jumpStrength: -3.5,
+            maxFallSpeed: 4,
+            rotation: 0
+        };
+
+        // Load reindeer image
+        const reindeerImg = new Image();
+        reindeerImg.src = 'icons/614133-winter/svg/030-deer.svg';
+
+        // Candy cane obstacles
+        let candyCanes = [];
+        const caneWidth = 60;
+        const caneGap = 170;
+        const caneSpeed = 1.5;
+        let frameCount = 0;
+
+        // Stars/snowflakes background
+        let stars = [];
+        for (let i = 0; i < 50; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 2 + 1,
+                speed: Math.random() * 0.5 + 0.25
+            });
+        }
+
+        // Cloud obstacles decoration
+        let clouds = [];
+        for (let i = 0; i < 3; i++) {
+            clouds.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * 150 + 50,
+                width: Math.random() * 80 + 60,
+                speed: Math.random() * 0.25 + 0.15
+            });
+        }
+
+        // Draw gradient background
+        function drawBackground() {
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#0a1628');
+            gradient.addColorStop(0.5, '#1a3a5c');
+            gradient.addColorStop(1, '#2d5a7b');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Draw stars
+        function drawStars() {
+            ctx.fillStyle = '#fff';
+            stars.forEach(star => {
+                ctx.globalAlpha = Math.random() * 0.5 + 0.5;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Move stars
+                star.x -= star.speed;
+                if (star.x < 0) {
+                    star.x = canvas.width;
+                    star.y = Math.random() * canvas.height;
+                }
+            });
+            ctx.globalAlpha = 1;
+        }
+
+        // Draw clouds
+        function drawClouds() {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+            clouds.forEach(cloud => {
+                ctx.beginPath();
+                ctx.ellipse(cloud.x, cloud.y, cloud.width / 2, 25, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.ellipse(cloud.x - 25, cloud.y + 10, 25, 20, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.ellipse(cloud.x + 25, cloud.y + 10, 30, 20, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                cloud.x -= cloud.speed;
+                if (cloud.x < -cloud.width) {
+                    cloud.x = canvas.width + cloud.width;
+                    cloud.y = Math.random() * 150 + 50;
+                }
+            });
+        }
+
+        // Draw ground
+        function drawGround() {
+            // Snow ground
+            ctx.fillStyle = '#e8f4f8';
+            ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
+
+            // Snow bumps
+            ctx.fillStyle = '#fff';
+            for (let i = 0; i < canvas.width; i += 60) {
+                ctx.beginPath();
+                ctx.ellipse(i + 30, canvas.height - 40, 35, 15, 0, Math.PI, 0);
+                ctx.fill();
+            }
+
+            // Snow sparkles
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            for (let i = 0; i < 20; i++) {
+                const x = (frameCount * 2 + i * 50) % canvas.width;
+                ctx.beginPath();
+                ctx.arc(x, canvas.height - 20 + Math.sin(i) * 10, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Draw reindeer
+        function drawReindeer() {
+            ctx.save();
+            ctx.translate(reindeer.x + reindeer.width / 2, reindeer.y + reindeer.height / 2);
+
+            // Rotation based on velocity
+            reindeer.rotation = Math.min(Math.max(reindeer.velocity * 3, -30), 45);
+            ctx.rotate(reindeer.rotation * Math.PI / 180);
+
+            // Draw the reindeer image
+            ctx.drawImage(
+                reindeerImg,
+                -reindeer.width / 2,
+                -reindeer.height / 2,
+                reindeer.width,
+                reindeer.height
+            );
+
+            ctx.restore();
+        }
+
+        // Draw candy cane pipe
+        function drawCandyCane(x, topHeight, bottomY) {
+            const stripeWidth = 15;
+
+            // Top candy cane (pointing down)
+            ctx.save();
+            ctx.beginPath();
+            ctx.roundRect(x, 0, caneWidth, topHeight, [0, 0, 15, 15]);
+            ctx.clip();
+
+            // Red and white stripes
+            for (let i = -topHeight; i < topHeight + caneWidth; i += stripeWidth * 2) {
+                ctx.fillStyle = '#ff0000';
+                ctx.beginPath();
+                ctx.moveTo(x + i, 0);
+                ctx.lineTo(x + i + stripeWidth, 0);
+                ctx.lineTo(x + i + stripeWidth + topHeight, topHeight);
+                ctx.lineTo(x + i + topHeight, topHeight);
+                ctx.fill();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.moveTo(x + i + stripeWidth, 0);
+                ctx.lineTo(x + i + stripeWidth * 2, 0);
+                ctx.lineTo(x + i + stripeWidth * 2 + topHeight, topHeight);
+                ctx.lineTo(x + i + stripeWidth + topHeight, topHeight);
+                ctx.fill();
+            }
+            ctx.restore();
+
+            // Top candy cane border
+            ctx.strokeStyle = '#cc0000';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.roundRect(x, 0, caneWidth, topHeight, [0, 0, 15, 15]);
+            ctx.stroke();
+
+            // Bottom candy cane (pointing up)
+            ctx.save();
+            ctx.beginPath();
+            ctx.roundRect(x, bottomY, caneWidth, canvas.height - bottomY - 40, [15, 15, 0, 0]);
+            ctx.clip();
+
+            const bottomHeight = canvas.height - bottomY - 40;
+            for (let i = -bottomHeight; i < bottomHeight + caneWidth; i += stripeWidth * 2) {
+                ctx.fillStyle = '#ff0000';
+                ctx.beginPath();
+                ctx.moveTo(x + i, bottomY);
+                ctx.lineTo(x + i + stripeWidth, bottomY);
+                ctx.lineTo(x + i + stripeWidth + bottomHeight, bottomY + bottomHeight);
+                ctx.lineTo(x + i + bottomHeight, bottomY + bottomHeight);
+                ctx.fill();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.moveTo(x + i + stripeWidth, bottomY);
+                ctx.lineTo(x + i + stripeWidth * 2, bottomY);
+                ctx.lineTo(x + i + stripeWidth * 2 + bottomHeight, bottomY + bottomHeight);
+                ctx.lineTo(x + i + stripeWidth + bottomHeight, bottomY + bottomHeight);
+                ctx.fill();
+            }
+            ctx.restore();
+
+            // Bottom candy cane border
+            ctx.strokeStyle = '#cc0000';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.roundRect(x, bottomY, caneWidth, canvas.height - bottomY - 40, [15, 15, 0, 0]);
+            ctx.stroke();
+        }
+
+        // Spawn new candy cane
+        function spawnCandyCane() {
+            const minHeight = 60;
+            const maxHeight = canvas.height - caneGap - 100;
+            const topHeight = Math.random() * (maxHeight - minHeight) + minHeight;
+
+            candyCanes.push({
+                x: canvas.width,
+                topHeight: topHeight,
+                bottomY: topHeight + caneGap,
+                passed: false
+            });
+        }
+
+        // Update candy canes
+        function updateCandyCanes() {
+            candyCanes.forEach((cane, index) => {
+                cane.x -= caneSpeed;
+
+                // Check if passed
+                if (!cane.passed && cane.x + caneWidth < reindeer.x) {
+                    cane.passed = true;
+                    score++;
+                    document.getElementById('currentScore').textContent = score;
+                }
+
+                // Remove off-screen canes
+                if (cane.x + caneWidth < 0) {
+                    candyCanes.splice(index, 1);
+                }
+            });
+
+            // Spawn new canes (slower to match reduced speed)
+            if (frameCount % 180 === 0) {
+                spawnCandyCane();
+            }
+        }
+
+        // Check collision
+        function checkCollision() {
+            // Ground/ceiling collision
+            if (reindeer.y + reindeer.height > canvas.height - 40 || reindeer.y < 0) {
+                return true;
+            }
+
+            // Candy cane collision
+            for (let cane of candyCanes) {
+                // Check horizontal overlap
+                if (reindeer.x + reindeer.width > cane.x && reindeer.x < cane.x + caneWidth) {
+                    // Check vertical collision (top or bottom pipe)
+                    if (reindeer.y < cane.topHeight || reindeer.y + reindeer.height > cane.bottomY) {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        // Jump/flap
+        function jump() {
+            if (gameReady && !gameRunning) {
+                // First click starts the game
+                gameRunning = true;
+                reindeer.velocity = reindeer.jumpStrength;
+            } else if (gameRunning) {
+                reindeer.velocity = reindeer.jumpStrength;
+            }
+        }
+
+        // Ready loop - shows reindeer bobbing before game starts
+        function readyLoop() {
+            if (gameRunning) return; // Switch to game loop
+            if (!gameReady) return;
+
+            frameCount++;
+
+            // Bob the reindeer up and down
+            reindeer.y = 300 + Math.sin(frameCount * 0.05) * 20;
+
+            // Draw everything
+            drawBackground();
+            drawStars();
+            drawClouds();
+            drawGround();
+            drawReindeer();
+
+            // Draw "Click to Start" text
+            ctx.fillStyle = '#ffd700';
+            ctx.font = 'bold 28px "Cinzel Decorative", serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Click or Press Space to Fly!', canvas.width / 2, 100);
+
+            requestAnimationFrame(readyLoop);
+        }
+
+        // Game loop
+        function gameLoop() {
+            if (!gameRunning) return;
+
+            frameCount++;
+
+            // Update reindeer
+            reindeer.velocity += reindeer.gravity;
+            // Cap fall speed
+            if (reindeer.velocity > reindeer.maxFallSpeed) {
+                reindeer.velocity = reindeer.maxFallSpeed;
+            }
+            reindeer.y += reindeer.velocity;
+
+            // Update candy canes
+            updateCandyCanes();
+
+            // Check collision
+            if (checkCollision()) {
+                gameOver();
+                return;
+            }
+
+            // Draw everything
+            drawBackground();
+            drawStars();
+            drawClouds();
+
+            // Draw candy canes
+            candyCanes.forEach(cane => {
+                drawCandyCane(cane.x, cane.topHeight, cane.bottomY);
+            });
+
+            drawGround();
+            drawReindeer();
+
+            // Draw score on canvas
+            ctx.fillStyle = '#ffd700';
+            ctx.font = 'bold 36px "Cinzel Decorative", serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(score, canvas.width / 2, 50);
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Enter ready state (shows reindeer, waits for click)
+        function enterReadyState() {
+            gameRunning = false;
+            gameReady = true;
+            score = 0;
+            frameCount = 0;
+            document.getElementById('currentScore').textContent = score;
+
+            // Reset reindeer
+            reindeer.y = 300;
+            reindeer.velocity = 0;
+
+            // Clear candy canes
+            candyCanes = [];
+
+            // Hide overlays
+            document.getElementById('startOverlay').classList.add('hidden');
+            document.getElementById('gameOverOverlay').classList.add('hidden');
+
+            // Start ready loop
+            readyLoop();
+        }
+
+        // Game over
+        function gameOver() {
+            gameRunning = false;
+            gameReady = false;
+
+            // Update high score
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('sleighRideHighScore', highScore);
+            }
+
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('highScore').textContent = highScore;
+            document.getElementById('gameOverOverlay').classList.remove('hidden');
+        }
+
+        // Event listeners
+        document.getElementById('startBtn').addEventListener('click', enterReadyState);
+        document.getElementById('restartBtn').addEventListener('click', enterReadyState);
+
+        canvas.addEventListener('click', () => {
+            if (gameReady && !gameRunning) {
+                gameRunning = true;
+                reindeer.velocity = reindeer.jumpStrength;
+                gameLoop();
+            } else if (gameRunning) {
+                jump();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if (gameReady && !gameRunning) {
+                    gameRunning = true;
+                    reindeer.velocity = reindeer.jumpStrength;
+                    gameLoop();
+                } else if (gameRunning) {
+                    jump();
+                } else {
+                    enterReadyState();
+                }
+            }
+        });
+
+        // Initial draw
+        drawBackground();
+        drawStars();
+        drawClouds();
+        drawGround();
+    </script>
+</body>
+</html>
