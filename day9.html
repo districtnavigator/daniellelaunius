@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 9 - Slice the Presents | 10 Days Till Christmas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cinzel+Decorative:wght@700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', Georgia, serif;
+            background: linear-gradient(135deg, #1a3a4a 0%, #0d2030 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .header {
+            text-align: center;
+            padding: 10px;
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+        }
+
+        .header h1 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2rem;
+            color: #ffd700;
+            margin-bottom: 3px;
+        }
+
+        .header p {
+            color: #a8d4ff;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #ffd700;
+            text-decoration: none;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s;
+            z-index: 10;
+        }
+
+        .back-link:hover {
+            transform: translateX(-5px);
+        }
+
+        .game-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        #gameCanvas {
+            border: 4px solid #ffd700;
+            border-radius: 15px;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
+            cursor: crosshair;
+        }
+
+        .score-display {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 1.3rem;
+            color: #ffd700;
+            margin-top: 8px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .instructions {
+            margin-top: 5px;
+            text-align: center;
+            color: #a8d4ff;
+            font-size: 0.85rem;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .overlay.hidden {
+            display: none;
+        }
+
+        .overlay h2 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 3rem;
+            color: #ffd700;
+            margin-bottom: 20px;
+        }
+
+        .overlay p {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .overlay .final-score {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 2rem;
+            color: #ff6b6b;
+            margin: 20px 0;
+        }
+
+        .play-btn {
+            background: linear-gradient(145deg, #c41e3a, #8b0000);
+            border: 3px solid #ffd700;
+            color: #ffd700;
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 1.3rem;
+            padding: 15px 40px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+        }
+
+        .high-score {
+            color: #a8d4ff;
+            margin-top: 15px;
+        }
+
+        .lives {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .life {
+            font-size: 1.5rem;
+        }
+
+        .mobile-message {
+            display: none;
+            min-height: 100vh;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .mobile-message h2 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2rem;
+            color: #f5d742;
+            margin-bottom: 15px;
+        }
+
+        .mobile-message p {
+            color: #fff;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 850px) {
+            .header, .game-wrapper, .back-link {
+                display: none !important;
+            }
+            .mobile-message {
+                display: flex;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-message">
+        <h2>Santa's workshop doesn't fit on small screens!</h2>
+        <p>Please visit on a computer to play.</p>
+    </div>
+
+    <a href="index.html" class="back-link">
+        <span>←</span> Back to Calendar
+    </a>
+
+    <div class="header">
+        <h1>Day 9: Slice the Presents!</h1>
+        <p>December 23rd</p>
+    </div>
+
+    <div class="game-wrapper">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div class="score-display">Score: <span id="currentScore">0</span> | Best: <span id="highScore">0</span></div>
+        <div class="lives" id="livesDisplay"></div>
+        <div class="instructions">Swipe through presents to slice them! Avoid the coal!</div>
+    </div>
+
+    <div class="overlay" id="startOverlay">
+        <h2>Slice the Presents!</h2>
+        <p>Swipe to slice flying presents!</p>
+        <p style="font-size: 0.9rem; color: #a8d4ff;">Avoid the coal - it costs a life!</p>
+        <button class="play-btn" id="startBtn">Start Slicing!</button>
+    </div>
+
+    <div class="overlay hidden" id="gameOverOverlay">
+        <h2>Game Over!</h2>
+        <div class="final-score">Score: <span id="finalScore">0</span></div>
+        <p class="high-score">Best: <span id="bestScore">0</span></p>
+        <button class="play-btn" id="restartBtn">Play Again</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let score = 0;
+        let lives = 3;
+        let gameRunning = false;
+        let objects = [];
+        let sliceTrail = [];
+        let particles = [];
+        let highScore = localStorage.getItem('slicePresentsHighScore') || 0;
+        let isMouseDown = false;
+        let lastMousePos = null;
+        let spawnTimer = 0;
+        let difficulty = 1;
+
+        document.getElementById('highScore').textContent = highScore;
+        document.getElementById('bestScore').textContent = highScore;
+
+        const OBJECT_TYPES = {
+            PRESENT: 'present',
+            ORNAMENT: 'ornament',
+            CANDY: 'candy',
+            COAL: 'coal'
+        };
+
+        function updateLivesDisplay() {
+            const display = document.getElementById('livesDisplay');
+            display.innerHTML = '';
+            for (let i = 0; i < lives; i++) {
+                const life = document.createElement('span');
+                life.className = 'life';
+                life.textContent = '❤️';
+                display.appendChild(life);
+            }
+        }
+
+        function spawnObject() {
+            const types = [OBJECT_TYPES.PRESENT, OBJECT_TYPES.PRESENT, OBJECT_TYPES.ORNAMENT, OBJECT_TYPES.CANDY];
+            // Add coal with increasing probability
+            if (Math.random() < 0.35 + difficulty * 0.03) {
+                types.push(OBJECT_TYPES.COAL);
+                types.push(OBJECT_TYPES.COAL);
+            }
+
+            const type = types[Math.floor(Math.random() * types.length)];
+            const size = type === OBJECT_TYPES.COAL ? 40 : 50 + Math.random() * 20;
+
+            // Spawn from bottom, going up in an arc
+            const startX = 150 + Math.random() * (canvas.width - 300);
+            // Bias velocity toward center of screen
+            const centerX = canvas.width / 2;
+            const distFromCenter = startX - centerX;
+            // If spawning on left, tend to go right; if on right, tend to go left
+            const velocityX = (Math.random() - 0.5) * 2 - (distFromCenter / canvas.width) * 2;
+            const velocityY = -3.5 - Math.random() * 1 - difficulty * 0.15;
+
+            objects.push({
+                x: startX,
+                y: canvas.height + size,
+                vx: velocityX,
+                vy: velocityY,
+                size: size,
+                type: type,
+                rotation: 0,
+                rotationSpeed: (Math.random() - 0.5) * 0.2,
+                sliced: false,
+                color: getObjectColor(type)
+            });
+        }
+
+        function getObjectColor(type) {
+            switch(type) {
+                case OBJECT_TYPES.PRESENT:
+                    return ['#e74c3c', '#3498db', '#9b59b6', '#f39c12'][Math.floor(Math.random() * 4)];
+                case OBJECT_TYPES.ORNAMENT:
+                    return ['#e74c3c', '#ffd700', '#27ae60', '#3498db'][Math.floor(Math.random() * 4)];
+                case OBJECT_TYPES.CANDY:
+                    return '#ff6b6b';
+                case OBJECT_TYPES.COAL:
+                    return '#2c2c2c';
+                default:
+                    return '#fff';
+            }
+        }
+
+        function drawObject(obj) {
+            ctx.save();
+            ctx.translate(obj.x, obj.y);
+            ctx.rotate(obj.rotation);
+
+            if (obj.sliced) {
+                ctx.globalAlpha = 0.5;
+            }
+
+            switch(obj.type) {
+                case OBJECT_TYPES.PRESENT:
+                    drawPresent(obj);
+                    break;
+                case OBJECT_TYPES.ORNAMENT:
+                    drawOrnament(obj);
+                    break;
+                case OBJECT_TYPES.CANDY:
+                    drawCandy(obj);
+                    break;
+                case OBJECT_TYPES.COAL:
+                    drawCoal(obj);
+                    break;
+            }
+
+            ctx.restore();
+        }
+
+        function drawPresent(obj) {
+            const s = obj.size / 2;
+
+            // Box
+            ctx.fillStyle = obj.color;
+            ctx.fillRect(-s, -s, obj.size, obj.size);
+
+            // Ribbon
+            ctx.fillStyle = '#ffd700';
+            ctx.fillRect(-s, -3, obj.size, 6);
+            ctx.fillRect(-3, -s, 6, obj.size);
+
+            // Bow
+            ctx.beginPath();
+            ctx.arc(-8, -s - 5, 8, 0, Math.PI * 2);
+            ctx.arc(8, -s - 5, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Outline
+            ctx.strokeStyle = '#c0392b';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(-s, -s, obj.size, obj.size);
+        }
+
+        function drawOrnament(obj) {
+            const r = obj.size / 2;
+
+            // Ball
+            ctx.fillStyle = obj.color;
+            ctx.beginPath();
+            ctx.arc(0, 0, r, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Shine
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.beginPath();
+            ctx.arc(-r * 0.3, -r * 0.3, r * 0.3, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Cap
+            ctx.fillStyle = '#ffd700';
+            ctx.fillRect(-6, -r - 8, 12, 10);
+
+            // Hook
+            ctx.strokeStyle = '#ffd700';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(0, -r - 12, 5, Math.PI, 0);
+            ctx.stroke();
+        }
+
+        function drawCandy(obj) {
+            const s = obj.size / 2;
+
+            // Candy cane curve
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = obj.size * 0.3;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(-s * 0.5, s);
+            ctx.lineTo(-s * 0.5, -s * 0.3);
+            ctx.arc(0, -s * 0.3, s * 0.5, Math.PI, 0);
+            ctx.stroke();
+
+            // Red stripes
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth = obj.size * 0.1;
+            ctx.setLineDash([8, 8]);
+            ctx.beginPath();
+            ctx.moveTo(-s * 0.5, s);
+            ctx.lineTo(-s * 0.5, -s * 0.3);
+            ctx.arc(0, -s * 0.3, s * 0.5, Math.PI, 0);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        function drawCoal(obj) {
+            const r = obj.size / 2;
+
+            // Lumpy coal shape
+            ctx.fillStyle = '#1a1a1a';
+            ctx.beginPath();
+            ctx.moveTo(-r, 0);
+            ctx.quadraticCurveTo(-r, -r * 0.8, -r * 0.3, -r);
+            ctx.quadraticCurveTo(r * 0.3, -r * 1.1, r, -r * 0.5);
+            ctx.quadraticCurveTo(r * 1.1, r * 0.3, r * 0.5, r);
+            ctx.quadraticCurveTo(-r * 0.2, r * 1.1, -r, r * 0.3);
+            ctx.quadraticCurveTo(-r * 1.1, -r * 0.2, -r, 0);
+            ctx.fill();
+
+            // Shine
+            ctx.fillStyle = '#3a3a3a';
+            ctx.beginPath();
+            ctx.arc(-r * 0.3, -r * 0.3, r * 0.2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Warning glow
+            ctx.shadowColor = '#ff0000';
+            ctx.shadowBlur = 10;
+            ctx.strokeStyle = 'rgba(255, 0, 0, 0.3)';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+        }
+
+        function createSliceParticles(x, y, color, count = 15) {
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 15,
+                    vy: (Math.random() - 0.5) * 15,
+                    size: Math.random() * 10 + 5,
+                    color: color,
+                    life: 1,
+                    rotation: Math.random() * Math.PI * 2
+                });
+            }
+        }
+
+        function drawSliceTrail() {
+            if (sliceTrail.length < 2) return;
+
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.lineWidth = 4;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            ctx.beginPath();
+            ctx.moveTo(sliceTrail[0].x, sliceTrail[0].y);
+
+            for (let i = 1; i < sliceTrail.length; i++) {
+                ctx.lineTo(sliceTrail[i].x, sliceTrail[i].y);
+            }
+            ctx.stroke();
+
+            // Glow effect
+            ctx.strokeStyle = 'rgba(255, 215, 0, 0.5)';
+            ctx.lineWidth = 8;
+            ctx.stroke();
+        }
+
+        function updateParticles() {
+            particles = particles.filter(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.3; // gravity
+                p.life -= 0.02;
+                p.rotation += 0.1;
+
+                if (p.life > 0) {
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(p.rotation);
+                    ctx.globalAlpha = p.life;
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
+                    ctx.restore();
+                    return true;
+                }
+                return false;
+            });
+        }
+
+        function checkSlice(mouseX, mouseY) {
+            if (!lastMousePos) return;
+
+            for (let i = objects.length - 1; i >= 0; i--) {
+                const obj = objects[i];
+                if (obj.sliced) continue;
+
+                // Check if slice line intersects with object
+                const dx = mouseX - obj.x;
+                const dy = mouseY - obj.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < obj.size) {
+                    // Create particles before removing
+                    if (obj.type === OBJECT_TYPES.COAL) {
+                        // Hit coal - lose a life
+                        lives--;
+                        updateLivesDisplay();
+                        createSliceParticles(obj.x, obj.y, '#1a1a1a', 20);
+
+                        if (lives <= 0) {
+                            gameOver();
+                        }
+                    } else {
+                        // Sliced good object
+                        let points = 10;
+                        if (obj.type === OBJECT_TYPES.ORNAMENT) points = 15;
+                        if (obj.type === OBJECT_TYPES.CANDY) points = 20;
+
+                        score += points;
+                        document.getElementById('currentScore').textContent = score;
+                        createSliceParticles(obj.x, obj.y, obj.color, 15);
+                    }
+
+                    // Remove the object immediately
+                    objects.splice(i, 1);
+                }
+            }
+        }
+
+        function update() {
+            // Spawn new objects
+            spawnTimer++;
+            const spawnRate = Math.max(50, 90 - difficulty * 5);
+            if (spawnTimer >= spawnRate) {
+                spawnObject();
+                spawnTimer = 0;
+
+                // Increase difficulty over time
+                if (score > 0 && score % 100 === 0) {
+                    difficulty = Math.min(difficulty + 0.5, 10);
+                }
+            }
+
+            // Update objects
+            objects = objects.filter(obj => {
+                obj.x += obj.vx;
+                obj.y += obj.vy;
+                obj.vy += 0.02; // gravity
+                obj.rotation += obj.rotationSpeed;
+
+                // Remove if off screen
+                if (obj.y > canvas.height + 100) {
+                    // Missed a good object (not coal) - lose a life
+                    if (!obj.sliced && obj.type !== OBJECT_TYPES.COAL) {
+                        lives--;
+                        updateLivesDisplay();
+                        if (lives <= 0) {
+                            gameOver();
+                        }
+                    }
+                    return false;
+                }
+                return true;
+            });
+
+            // Update slice trail
+            sliceTrail = sliceTrail.filter((point, index) => {
+                point.life -= 0.1;
+                return point.life > 0;
+            });
+        }
+
+        function draw() {
+            // Background
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#0d2030');
+            gradient.addColorStop(1, '#1a3a4a');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Snow on ground
+            ctx.fillStyle = '#e8f4f8';
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height);
+            for (let x = 0; x <= canvas.width; x += 50) {
+                ctx.lineTo(x, canvas.height - 20 - Math.sin(x * 0.05) * 10);
+            }
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.fill();
+
+            // Draw objects
+            objects.forEach(obj => drawObject(obj));
+
+            // Draw particles
+            updateParticles();
+
+            // Draw slice trail
+            drawSliceTrail();
+        }
+
+        function gameLoop() {
+            if (!gameRunning) return;
+
+            update();
+            draw();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function startGame() {
+            score = 0;
+            lives = 3;
+            difficulty = 1;
+            spawnTimer = 0;
+            objects = [];
+            particles = [];
+            sliceTrail = [];
+
+            document.getElementById('currentScore').textContent = score;
+            updateLivesDisplay();
+
+            document.getElementById('startOverlay').classList.add('hidden');
+            document.getElementById('gameOverOverlay').classList.add('hidden');
+
+            gameRunning = true;
+            gameLoop();
+        }
+
+        function gameOver() {
+            gameRunning = false;
+
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('slicePresentsHighScore', highScore);
+                document.getElementById('highScore').textContent = highScore;
+            }
+
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('bestScore').textContent = highScore;
+            document.getElementById('gameOverOverlay').classList.remove('hidden');
+        }
+
+        // Mouse controls
+        canvas.addEventListener('mousedown', (e) => {
+            isMouseDown = true;
+            const rect = canvas.getBoundingClientRect();
+            lastMousePos = {
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+            };
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isMouseDown || !gameRunning) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            // Add to slice trail
+            sliceTrail.push({ x: mouseX, y: mouseY, life: 1 });
+            if (sliceTrail.length > 20) sliceTrail.shift();
+
+            // Check for slices
+            checkSlice(mouseX, mouseY);
+
+            lastMousePos = { x: mouseX, y: mouseY };
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            isMouseDown = false;
+            lastMousePos = null;
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            isMouseDown = false;
+            lastMousePos = null;
+        });
+
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('restartBtn').addEventListener('click', startGame);
+
+        // Initial display
+        updateLivesDisplay();
+    </script>
+</body>
+</html>

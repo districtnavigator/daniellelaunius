@@ -237,6 +237,14 @@
         <button class="play-btn" id="restartBtn">Try Again</button>
     </div>
 
+    <!-- Win Overlay -->
+    <div class="overlay hidden" id="winOverlay">
+        <h2>You Win!</h2>
+        <img src="icons/614133-winter/svg/030-deer.svg" alt="Reindeer" style="width: 100px; margin: 20px;">
+        <p style="font-size: 1.3rem; max-width: 400px; line-height: 1.6; margin: 20px;">Flying through life is better with you, thanks for finding ways to make everyday better! ❤️</p>
+        <a href="index.html" class="play-btn" style="text-decoration: none;">Back to Calendar</a>
+    </div>
+
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -255,10 +263,12 @@
             width: 60,
             height: 45,
             velocity: 0,
-            gravity: 0.12,
-            jumpStrength: -3.5,
-            maxFallSpeed: 4,
-            rotation: 0
+            gravity: 0.04,
+            jumpStrength: -2.2,
+            maxFallSpeed: 2,
+            rotation: 0,
+            // Hitbox is smaller than sprite for forgiving collision
+            hitboxPadding: 12
         };
 
         // Load reindeer image
@@ -268,9 +278,14 @@
         // Candy cane obstacles
         let candyCanes = [];
         const caneWidth = 60;
-        const caneGap = 170;
+        const caneGap = 220;
         const caneSpeed = 1.5;
         let frameCount = 0;
+        let totalCanesSpawned = 0;
+        const maxCanes = 20;
+
+        // Finish line
+        let finishLine = null;
 
         // Stars/snowflakes background
         let stars = [];
@@ -463,6 +478,8 @@
 
         // Spawn new candy cane
         function spawnCandyCane() {
+            if (totalCanesSpawned >= maxCanes) return;
+
             const minHeight = 60;
             const maxHeight = canvas.height - caneGap - 100;
             const topHeight = Math.random() * (maxHeight - minHeight) + minHeight;
@@ -473,6 +490,53 @@
                 bottomY: topHeight + caneGap,
                 passed: false
             });
+
+            totalCanesSpawned++;
+
+            // Spawn finish line after last candy cane
+            if (totalCanesSpawned === maxCanes) {
+                finishLine = {
+                    x: canvas.width + 300
+                };
+            }
+        }
+
+        // Draw finish line
+        function drawFinishLine() {
+            if (!finishLine) return;
+
+            const x = finishLine.x;
+            const stripeHeight = 30;
+            const lineWidth = 20;
+
+            // Checkered pattern
+            for (let y = 0; y < canvas.height - 40; y += stripeHeight) {
+                const isEven = (y / stripeHeight) % 2 === 0;
+                ctx.fillStyle = isEven ? '#fff' : '#000';
+                ctx.fillRect(x, y, lineWidth, stripeHeight);
+                ctx.fillStyle = isEven ? '#000' : '#fff';
+                ctx.fillRect(x + lineWidth, y, lineWidth, stripeHeight);
+            }
+
+            // "FINISH" banner
+            ctx.fillStyle = '#c41e3a';
+            ctx.fillRect(x - 30, 80, 100, 40);
+            ctx.strokeStyle = '#ffd700';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(x - 30, 80, 100, 40);
+
+            ctx.fillStyle = '#ffd700';
+            ctx.font = 'bold 18px "Cinzel Decorative", serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('FINISH', x + 20, 107);
+
+            // Move finish line
+            finishLine.x -= caneSpeed;
+
+            // Check if reindeer crossed finish line
+            if (reindeer.x > finishLine.x + 40) {
+                checkWin();
+            }
         }
 
         // Update candy canes
@@ -501,17 +565,24 @@
 
         // Check collision
         function checkCollision() {
+            // Use smaller hitbox for forgiving collision
+            const pad = reindeer.hitboxPadding;
+            const hitboxX = reindeer.x + pad;
+            const hitboxY = reindeer.y + pad;
+            const hitboxW = reindeer.width - pad * 2;
+            const hitboxH = reindeer.height - pad * 2;
+
             // Ground/ceiling collision
-            if (reindeer.y + reindeer.height > canvas.height - 40 || reindeer.y < 0) {
+            if (hitboxY + hitboxH > canvas.height - 40 || hitboxY < 0) {
                 return true;
             }
 
             // Candy cane collision
             for (let cane of candyCanes) {
-                // Check horizontal overlap
-                if (reindeer.x + reindeer.width > cane.x && reindeer.x < cane.x + caneWidth) {
+                // Check horizontal overlap with smaller hitbox
+                if (hitboxX + hitboxW > cane.x && hitboxX < cane.x + caneWidth) {
                     // Check vertical collision (top or bottom pipe)
-                    if (reindeer.y < cane.topHeight || reindeer.y + reindeer.height > cane.bottomY) {
+                    if (hitboxY < cane.topHeight || hitboxY + hitboxH > cane.bottomY) {
                         return true;
                     }
                 }
@@ -590,6 +661,9 @@
                 drawCandyCane(cane.x, cane.topHeight, cane.bottomY);
             });
 
+            // Draw finish line
+            drawFinishLine();
+
             drawGround();
             drawReindeer();
 
@@ -614,15 +688,25 @@
             reindeer.y = 300;
             reindeer.velocity = 0;
 
-            // Clear candy canes
+            // Clear candy canes and reset counters
             candyCanes = [];
+            totalCanesSpawned = 0;
+            finishLine = null;
 
             // Hide overlays
             document.getElementById('startOverlay').classList.add('hidden');
             document.getElementById('gameOverOverlay').classList.add('hidden');
+            document.getElementById('winOverlay').classList.add('hidden');
 
             // Start ready loop
             readyLoop();
+        }
+
+        // Check for win (only when crossing finish line)
+        function checkWin() {
+            gameRunning = false;
+            gameReady = false;
+            document.getElementById('winOverlay').classList.remove('hidden');
         }
 
         // Game over
@@ -644,6 +728,7 @@
         // Event listeners
         document.getElementById('startBtn').addEventListener('click', enterReadyState);
         document.getElementById('restartBtn').addEventListener('click', enterReadyState);
+        document.getElementById('playAgainBtn').addEventListener('click', enterReadyState);
 
         canvas.addEventListener('click', () => {
             if (gameReady && !gameRunning) {

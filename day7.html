@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 7 - Grinch Invaders | 10 Days Till Christmas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cinzel+Decorative:wght@700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', Georgia, serif;
+            background: linear-gradient(135deg, #1a3a4a 0%, #0d2030 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .header {
+            text-align: center;
+            padding: 10px;
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+        }
+
+        .header h1 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2rem;
+            color: #ffd700;
+            margin-bottom: 3px;
+        }
+
+        .header p {
+            color: #a8d4ff;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #ffd700;
+            text-decoration: none;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s;
+            z-index: 10;
+        }
+
+        .back-link:hover {
+            transform: translateX(-5px);
+        }
+
+        .game-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        #gameCanvas {
+            border: 4px solid #ffd700;
+            border-radius: 15px;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
+        }
+
+        .score-display {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 1.3rem;
+            color: #ffd700;
+            margin-top: 8px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .instructions {
+            margin-top: 5px;
+            text-align: center;
+            color: #a8d4ff;
+            font-size: 0.85rem;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .overlay.hidden {
+            display: none;
+        }
+
+        .overlay h2 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 3rem;
+            color: #ffd700;
+            margin-bottom: 20px;
+        }
+
+        .overlay p {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .overlay .final-score {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 2rem;
+            color: #ff6b6b;
+            margin: 20px 0;
+        }
+
+        .play-btn {
+            background: linear-gradient(145deg, #c41e3a, #8b0000);
+            border: 3px solid #ffd700;
+            color: #ffd700;
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 1.3rem;
+            padding: 15px 40px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+        }
+
+        .high-score {
+            color: #a8d4ff;
+            margin-top: 15px;
+        }
+
+        .mobile-message {
+            display: none;
+            min-height: 100vh;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .mobile-message img {
+            width: 120px;
+            margin-bottom: 20px;
+        }
+
+        .mobile-message h2 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2rem;
+            color: #f5d742;
+            margin-bottom: 15px;
+        }
+
+        .mobile-message p {
+            color: #fff;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 1024px) {
+            .header, .game-wrapper, .back-link {
+                display: none !important;
+            }
+            .mobile-message {
+                display: flex;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-message">
+        <img src="icons/614133-winter/svg/009-santa-claus.svg" alt="Santa">
+        <h2>Santa's workshop doesn't fit on small screens!</h2>
+        <p>Please visit on a computer to play.</p>
+    </div>
+
+    <a href="index.html" class="back-link">
+        <span>←</span> Back to Calendar
+    </a>
+
+    <div class="header">
+        <h1>Day 7: Grinch Invaders</h1>
+        <p>December 21st</p>
+    </div>
+
+    <div class="game-wrapper">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div class="score-display">Score: <span id="currentScore">0</span> | Lives: <span id="lives">3</span></div>
+        <div class="instructions">Arrow keys or A/D to move, Space or Click to shoot!</div>
+    </div>
+
+    <div class="overlay" id="startOverlay">
+        <h2>Grinch Invaders!</h2>
+        <img src="icons/614133-winter/svg/043-pine.svg" alt="Tree" style="width: 100px; margin: 20px;">
+        <p>The Grinches are trying to steal Christmas!</p>
+        <p style="font-size: 0.9rem; color: #a8d4ff;">Defend the presents with snowballs!</p>
+        <button class="play-btn" id="startBtn">Defend Christmas!</button>
+    </div>
+
+    <div class="overlay hidden" id="gameOverOverlay">
+        <h2>Christmas Lost!</h2>
+        <div class="final-score">Score: <span id="finalScore">0</span></div>
+        <p class="high-score">Best: <span id="highScore">0</span></p>
+        <button class="play-btn" id="restartBtn">Try Again</button>
+    </div>
+
+    <div class="overlay hidden" id="winOverlay">
+        <h2>Christmas Saved!</h2>
+        <div class="final-score">Score: <span id="winScore">0</span></div>
+        <p class="high-score">Best: <span id="winHighScore">0</span></p>
+        <button class="play-btn" id="nextWaveBtn">Next Wave!</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Game state
+        let gameRunning = false;
+        let score = 0;
+        let lives = 3;
+        let wave = 1;
+        let highScore = localStorage.getItem('grinchInvadersHighScore') || 0;
+        let frameCount = 0;
+        document.getElementById('highScore').textContent = highScore;
+        document.getElementById('winHighScore').textContent = highScore;
+
+        // Player (Santa's sleigh)
+        const player = {
+            x: canvas.width / 2 - 30,
+            y: canvas.height - 70,
+            width: 60,
+            height: 40,
+            speed: 6
+        };
+
+        // Snowballs (player bullets)
+        let snowballs = [];
+        const snowballSpeed = 8;
+        let canShoot = true;
+        let shootCooldown = 250;
+
+        // Grinches (enemies)
+        let grinches = [];
+        const grinchRows = 4;
+        const grinchCols = 8;
+        const grinchWidth = 35;
+        const grinchHeight = 28;
+        let grinchDirection = 1;
+        let grinchSpeed = 1;
+        let grinchDropAmount = 30;
+
+        // Enemy projectiles (green lasers)
+        let enemyBullets = [];
+        let enemyShootChance = 0.00002;
+
+        // Barriers (presents) - disabled
+        let barriers = [];
+
+        // Particles
+        let particles = [];
+
+        // Stars background
+        let stars = [];
+        for (let i = 0; i < 100; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 2 + 0.5,
+                twinkle: Math.random() * Math.PI * 2
+            });
+        }
+
+        // Keys
+        const keys = {
+            left: false,
+            right: false,
+            shoot: false
+        };
+
+        // Initialize grinches
+        function initGrinches() {
+            grinches = [];
+            const startX = 50;
+            const startY = 60;
+
+            for (let row = 0; row < grinchRows; row++) {
+                for (let col = 0; col < grinchCols; col++) {
+                    grinches.push({
+                        x: startX + col * (grinchWidth + 20),
+                        y: startY + row * (grinchHeight + 15),
+                        width: grinchWidth,
+                        height: grinchHeight,
+                        type: row, // Different types per row
+                        alive: true
+                    });
+                }
+            }
+
+            grinchDirection = 1;
+            grinchSpeed = 1 + wave * 0.3;
+        }
+
+        // Initialize barriers
+        function initBarriers() {
+            barriers = [];
+            const barrierWidth = 80;
+            const barrierHeight = 50;
+            const numBarriers = 4;
+            const spacing = canvas.width / (numBarriers + 1);
+
+            for (let i = 0; i < numBarriers; i++) {
+                barriers.push({
+                    x: spacing * (i + 1) - barrierWidth / 2,
+                    y: canvas.height - 150,
+                    width: barrierWidth,
+                    height: barrierHeight,
+                    health: 4
+                });
+            }
+        }
+
+        // Draw background
+        function drawBackground() {
+            // Night sky
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#0a0a1a');
+            gradient.addColorStop(1, '#1a2a3a');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Stars
+            stars.forEach(star => {
+                star.twinkle += 0.05;
+                const alpha = 0.5 + Math.sin(star.twinkle) * 0.3;
+                ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Ground
+            ctx.fillStyle = '#e8f4f8';
+            ctx.fillRect(0, canvas.height - 25, canvas.width, 25);
+
+            // Snow bumps
+            ctx.fillStyle = '#fff';
+            for (let i = 0; i < canvas.width; i += 40) {
+                ctx.beginPath();
+                ctx.ellipse(i + 20, canvas.height - 25, 25, 10, 0, Math.PI, 0);
+                ctx.fill();
+            }
+        }
+
+        // Draw player (Santa's sleigh)
+        function drawPlayer() {
+            const x = player.x;
+            const y = player.y;
+
+            // Sleigh body
+            ctx.fillStyle = '#8B0000';
+            ctx.beginPath();
+            ctx.moveTo(x + 5, y + 25);
+            ctx.quadraticCurveTo(x - 5, y + 35, x + 5, y + 40);
+            ctx.lineTo(x + 55, y + 40);
+            ctx.quadraticCurveTo(x + 65, y + 35, x + 55, y + 25);
+            ctx.closePath();
+            ctx.fill();
+
+            // Sleigh trim
+            ctx.fillStyle = '#ffd700';
+            ctx.fillRect(x, y + 22, 60, 4);
+
+            // Cannon (snowball launcher)
+            ctx.fillStyle = '#4a4a4a';
+            ctx.fillRect(x + 25, y + 5, 10, 20);
+
+            // Cannon tip
+            ctx.fillStyle = '#5dade2';
+            ctx.beginPath();
+            ctx.arc(x + 30, y + 5, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Runners
+            ctx.strokeStyle = '#ffd700';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(x, y + 42);
+            ctx.quadraticCurveTo(x + 10, y + 48, x + 25, y + 42);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x + 35, y + 42);
+            ctx.quadraticCurveTo(x + 50, y + 48, x + 60, y + 42);
+            ctx.stroke();
+        }
+
+        // Draw grinch
+        function drawGrinch(g) {
+            if (!g.alive) return;
+
+            const x = g.x;
+            const y = g.y;
+            const scale = 0.7;
+
+            // Body color based on type
+            const colors = ['#2ecc71', '#27ae60', '#1e8449', '#145a32'];
+            ctx.fillStyle = colors[g.type % colors.length];
+
+            // Head
+            ctx.beginPath();
+            ctx.ellipse(x + g.width / 2, y + 10 * scale, 12 * scale, 14 * scale, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Evil grin
+            ctx.strokeStyle = '#1a1a1a';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(x + g.width / 2, y + 12 * scale, 7 * scale, 0.2 * Math.PI, 0.8 * Math.PI);
+            ctx.stroke();
+
+            // Eyes
+            ctx.fillStyle = '#ffff00';
+            ctx.beginPath();
+            ctx.ellipse(x + g.width / 2 - 5 * scale, y + 6 * scale, 3 * scale, 4 * scale, -0.2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(x + g.width / 2 + 5 * scale, y + 6 * scale, 3 * scale, 4 * scale, 0.2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Pupils
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(x + g.width / 2 - 5 * scale, y + 7 * scale, 1.5 * scale, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + g.width / 2 + 5 * scale, y + 7 * scale, 1.5 * scale, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Angry eyebrows
+            ctx.strokeStyle = colors[g.type % colors.length];
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x + g.width / 2 - 10 * scale, y + 1 * scale);
+            ctx.lineTo(x + g.width / 2 - 2 * scale, y + 4 * scale);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x + g.width / 2 + 10 * scale, y + 1 * scale);
+            ctx.lineTo(x + g.width / 2 + 2 * scale, y + 4 * scale);
+            ctx.stroke();
+
+            // Santa hat they stole!
+            ctx.fillStyle = '#c0392b';
+            ctx.beginPath();
+            ctx.moveTo(x + g.width / 2 - 7 * scale, y - 3 * scale);
+            ctx.lineTo(x + g.width / 2 + 10 * scale, y - 14 * scale);
+            ctx.lineTo(x + g.width / 2 + 8 * scale, y - 3 * scale);
+            ctx.fill();
+
+            // Hat pom-pom
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(x + g.width / 2 + 10 * scale, y - 14 * scale, 3 * scale, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Draw barrier (present)
+        function drawBarrier(b) {
+            const alpha = b.health / 4;
+
+            ctx.globalAlpha = alpha;
+
+            // Present box
+            ctx.fillStyle = '#e74c3c';
+            ctx.fillRect(b.x, b.y, b.width, b.height);
+
+            // Damage cracks
+            if (b.health < 4) {
+                ctx.strokeStyle = '#8B0000';
+                ctx.lineWidth = 2;
+                for (let i = 0; i < (4 - b.health); i++) {
+                    ctx.beginPath();
+                    ctx.moveTo(b.x + (i + 1) * (b.width / 5), b.y);
+                    ctx.lineTo(b.x + (i + 1) * (b.width / 5) + 10, b.y + b.height);
+                    ctx.stroke();
+                }
+            }
+
+            // Ribbon
+            ctx.fillStyle = '#ffd700';
+            ctx.fillRect(b.x, b.y + b.height / 2 - 5, b.width, 10);
+            ctx.fillRect(b.x + b.width / 2 - 5, b.y, 10, b.height);
+
+            // Bow
+            ctx.beginPath();
+            ctx.ellipse(b.x + b.width / 2 - 12, b.y + b.height / 2, 10, 6, -0.3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(b.x + b.width / 2 + 12, b.y + b.height / 2, 10, 6, 0.3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(b.x + b.width / 2, b.y + b.height / 2, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.globalAlpha = 1;
+        }
+
+        // Draw snowball
+        function drawSnowball(s) {
+            const gradient = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, 8);
+            gradient.addColorStop(0, '#ffffff');
+            gradient.addColorStop(1, '#b8d4e8');
+
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Trail
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.beginPath();
+            ctx.arc(s.x, s.y + 10, 5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Draw enemy bullet (glowing green laser)
+        function drawEnemyBullet(b) {
+            // Outer glow
+            ctx.shadowColor = '#00ff00';
+            ctx.shadowBlur = 8;
+
+            // Laser body
+            ctx.fillStyle = '#00ff00';
+            ctx.beginPath();
+            ctx.ellipse(b.x, b.y, 2, 6, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Bright center
+            ctx.fillStyle = '#aaffaa';
+            ctx.beginPath();
+            ctx.ellipse(b.x, b.y, 1, 4, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.shadowBlur = 0;
+        }
+
+        // Create particles
+        function createParticles(x, y, color, count = 12) {
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    size: Math.random() * 5 + 2,
+                    color: color,
+                    life: 1
+                });
+            }
+        }
+
+        // Update particles
+        function updateParticles() {
+            particles = particles.filter(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.025;
+
+                if (p.life > 0) {
+                    ctx.globalAlpha = p.life;
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                    return true;
+                }
+                return false;
+            });
+        }
+
+        // Update player
+        function updatePlayer() {
+            if (keys.left && player.x > 0) {
+                player.x -= player.speed;
+            }
+            if (keys.right && player.x < canvas.width - player.width) {
+                player.x += player.speed;
+            }
+
+            // Shooting
+            if (keys.shoot && canShoot) {
+                snowballs.push({
+                    x: player.x + player.width / 2,
+                    y: player.y
+                });
+                canShoot = false;
+                setTimeout(() => canShoot = true, shootCooldown);
+            }
+        }
+
+        // Update snowballs
+        function updateSnowballs() {
+            snowballs = snowballs.filter(s => {
+                s.y -= snowballSpeed;
+
+                // Check grinch collision
+                for (let g of grinches) {
+                    if (!g.alive) continue;
+
+                    if (s.x > g.x && s.x < g.x + g.width &&
+                        s.y > g.y && s.y < g.y + g.height) {
+
+                        g.alive = false;
+                        score += (4 - g.type) * 10 + 10;
+                        document.getElementById('currentScore').textContent = score;
+                        createParticles(g.x + g.width / 2, g.y + g.height / 2, '#2ecc71');
+                        return false;
+                    }
+                }
+
+                // Check barrier collision
+                for (let b of barriers) {
+                    if (b.health <= 0) continue;
+
+                    if (s.x > b.x && s.x < b.x + b.width &&
+                        s.y > b.y && s.y < b.y + b.height) {
+                        return false;
+                    }
+                }
+
+                return s.y > 0;
+            });
+        }
+
+        // Update grinches
+        function updateGrinches() {
+            let needsDrop = false;
+            let aliveGrinches = grinches.filter(g => g.alive);
+
+            if (aliveGrinches.length === 0) {
+                win();
+                return;
+            }
+
+            // Check edges
+            for (let g of aliveGrinches) {
+                if ((grinchDirection > 0 && g.x + g.width >= canvas.width - 10) ||
+                    (grinchDirection < 0 && g.x <= 10)) {
+                    needsDrop = true;
+                    break;
+                }
+            }
+
+            // Move grinches
+            for (let g of grinches) {
+                if (needsDrop) {
+                    g.y += grinchDropAmount;
+                } else {
+                    g.x += grinchSpeed * grinchDirection;
+                }
+
+                // Check if reached bottom
+                if (g.alive && g.y + g.height > player.y) {
+                    gameOver();
+                    return;
+                }
+            }
+
+            if (needsDrop) {
+                grinchDirection *= -1;
+            }
+
+            // Enemy shooting
+            for (let g of aliveGrinches) {
+                if (Math.random() < enemyShootChance) {
+                    enemyBullets.push({
+                        x: g.x + g.width / 2,
+                        y: g.y + g.height
+                    });
+                }
+            }
+        }
+
+        // Update enemy bullets
+        function updateEnemyBullets() {
+            enemyBullets = enemyBullets.filter(b => {
+                b.y += 0.8;
+
+                // Check player collision
+                if (b.x > player.x && b.x < player.x + player.width &&
+                    b.y > player.y && b.y < player.y + player.height) {
+
+                    lives--;
+                    document.getElementById('lives').textContent = lives;
+                    createParticles(player.x + player.width / 2, player.y + player.height / 2, '#ff6b6b');
+
+                    if (lives <= 0) {
+                        gameOver();
+                    }
+                    return false;
+                }
+
+                // Check barrier collision
+                for (let bar of barriers) {
+                    if (bar.health <= 0) continue;
+
+                    if (b.x > bar.x && b.x < bar.x + bar.width &&
+                        b.y > bar.y && b.y < bar.y + bar.height) {
+
+                        bar.health--;
+                        createParticles(b.x, b.y, '#e74c3c', 6);
+                        return false;
+                    }
+                }
+
+                return b.y < canvas.height;
+            });
+        }
+
+        // Game over
+        function gameOver() {
+            gameRunning = false;
+
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('grinchInvadersHighScore', highScore);
+            }
+
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('highScore').textContent = highScore;
+            document.getElementById('gameOverOverlay').classList.remove('hidden');
+        }
+
+        // Win wave
+        function win() {
+            gameRunning = false;
+
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('grinchInvadersHighScore', highScore);
+            }
+
+            document.getElementById('winScore').textContent = score;
+            document.getElementById('winHighScore').textContent = highScore;
+            document.getElementById('winOverlay').classList.remove('hidden');
+        }
+
+        // Start game
+        function startGame() {
+            gameRunning = true;
+            score = 0;
+            lives = 3;
+            wave = 1;
+            frameCount = 0;
+            snowballs = [];
+            enemyBullets = [];
+            particles = [];
+
+            player.x = canvas.width / 2 - player.width / 2;
+
+            document.getElementById('currentScore').textContent = score;
+            document.getElementById('lives').textContent = lives;
+            document.getElementById('startOverlay').classList.add('hidden');
+            document.getElementById('gameOverOverlay').classList.add('hidden');
+            document.getElementById('winOverlay').classList.add('hidden');
+
+            initGrinches();
+            gameLoop();
+        }
+
+        // Next wave
+        function nextWave() {
+            wave++;
+            snowballs = [];
+            enemyBullets = [];
+
+            player.x = canvas.width / 2 - player.width / 2;
+
+            document.getElementById('winOverlay').classList.add('hidden');
+
+            initGrinches();
+            // Don't reset barriers - they carry over
+            gameRunning = true;
+            gameLoop();
+        }
+
+        // Game loop
+        function gameLoop() {
+            if (!gameRunning) return;
+
+            frameCount++;
+
+            // Update
+            updatePlayer();
+            updateSnowballs();
+            updateGrinches();
+            updateEnemyBullets();
+
+            // Draw
+            drawBackground();
+
+            // Draw grinches
+            grinches.forEach(g => drawGrinch(g));
+
+            // Draw snowballs
+            snowballs.forEach(s => drawSnowball(s));
+
+            // Draw enemy bullets
+            enemyBullets.forEach(b => drawEnemyBullet(b));
+
+            // Draw player
+            drawPlayer();
+
+            // Draw particles
+            updateParticles();
+
+            // Wave indicator
+            ctx.fillStyle = '#ffd700';
+            ctx.font = '18px "Cinzel Decorative", serif';
+            ctx.textAlign = 'right';
+            ctx.fillText(`Wave ${wave}`, canvas.width - 20, 30);
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+                keys.left = true;
+            }
+            if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+                keys.right = true;
+            }
+            if (e.code === 'Space') {
+                e.preventDefault();
+                keys.shoot = true;
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+                keys.left = false;
+            }
+            if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+                keys.right = false;
+            }
+            if (e.code === 'Space') {
+                keys.shoot = false;
+            }
+        });
+
+        // Button listeners
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('restartBtn').addEventListener('click', startGame);
+        document.getElementById('nextWaveBtn').addEventListener('click', nextWave);
+
+        // Mouse click to shoot
+        canvas.addEventListener('click', (e) => {
+            if (gameRunning && canShoot) {
+                snowballs.push({
+                    x: player.x + player.width / 2,
+                    y: player.y
+                });
+                canShoot = false;
+                setTimeout(() => canShoot = true, shootCooldown);
+            }
+        });
+
+        // Initial draw
+        drawBackground();
+    </script>
+</body>
+</html>

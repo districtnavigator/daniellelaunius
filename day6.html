@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 6 - Elf Hop | 10 Days Till Christmas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cinzel+Decorative:wght@700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', Georgia, serif;
+            background: linear-gradient(135deg, #1a3a4a 0%, #0d2030 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .header {
+            text-align: center;
+            padding: 10px;
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+        }
+
+        .header h1 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2rem;
+            color: #ffd700;
+            margin-bottom: 3px;
+        }
+
+        .header p {
+            color: #a8d4ff;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #ffd700;
+            text-decoration: none;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s;
+            z-index: 10;
+        }
+
+        .back-link:hover {
+            transform: translateX(-5px);
+        }
+
+        .game-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        #gameCanvas {
+            border: 4px solid #ffd700;
+            border-radius: 15px;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
+        }
+
+        .score-display {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 1.3rem;
+            color: #ffd700;
+            margin-top: 8px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .instructions {
+            margin-top: 5px;
+            text-align: center;
+            color: #a8d4ff;
+            font-size: 0.85rem;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .overlay.hidden {
+            display: none;
+        }
+
+        .overlay h2 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 3rem;
+            color: #ffd700;
+            margin-bottom: 20px;
+        }
+
+        .overlay p {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .overlay .final-score {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 2rem;
+            color: #ff6b6b;
+            margin: 20px 0;
+        }
+
+        .play-btn {
+            background: linear-gradient(145deg, #c41e3a, #8b0000);
+            border: 3px solid #ffd700;
+            color: #ffd700;
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 1.3rem;
+            padding: 15px 40px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+        }
+
+        .high-score {
+            color: #a8d4ff;
+            margin-top: 15px;
+        }
+
+        .mobile-message {
+            display: none;
+            min-height: 100vh;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .mobile-message img {
+            width: 120px;
+            margin-bottom: 20px;
+        }
+
+        .mobile-message h2 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2rem;
+            color: #f5d742;
+            margin-bottom: 15px;
+        }
+
+        .mobile-message p {
+            color: #fff;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 1024px) {
+            .header, .game-wrapper, .back-link {
+                display: none !important;
+            }
+            .mobile-message {
+                display: flex;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-message">
+        <img src="icons/614133-winter/svg/009-santa-claus.svg" alt="Santa">
+        <h2>Santa's workshop doesn't fit on small screens!</h2>
+        <p>Please visit on a computer to play.</p>
+    </div>
+
+    <a href="index.html" class="back-link">
+        <span>←</span> Back to Calendar
+    </a>
+
+    <div class="header">
+        <h1>Day 6: Elf Hop</h1>
+        <p>December 20th</p>
+    </div>
+
+    <div class="game-wrapper">
+        <canvas id="gameCanvas" width="500" height="700"></canvas>
+        <div class="score-display">Height: <span id="currentScore">0</span>m</div>
+        <div class="instructions">Use Left/Right arrow keys or A/D to move!</div>
+    </div>
+
+    <div class="overlay" id="startOverlay">
+        <h2>Elf Hop!</h2>
+        <img src="icons/614133-winter/svg/023-gingerbread-man.svg" alt="Elf" style="width: 100px; margin: 20px;">
+        <p>Jump as high as you can!</p>
+        <p style="font-size: 0.9rem; color: #a8d4ff;">Collect candy canes for bonus points!</p>
+        <button class="play-btn" id="startBtn">Start Hopping!</button>
+    </div>
+
+    <div class="overlay hidden" id="gameOverOverlay">
+        <h2>You Fell!</h2>
+        <div class="final-score">Height: <span id="finalScore">0</span>m</div>
+        <p class="high-score">Best: <span id="highScore">0</span>m</p>
+        <button class="play-btn" id="restartBtn">Try Again</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Game state
+        let gameRunning = false;
+        let score = 0;
+        let maxHeight = 0;
+        let highScore = localStorage.getItem('elfHopHighScore') || 0;
+        let frameCount = 0;
+        document.getElementById('highScore').textContent = highScore;
+
+        // Elf properties
+        const elf = {
+            x: canvas.width / 2 - 20,
+            y: canvas.height - 150,
+            width: 40,
+            height: 50,
+            velocityX: 0,
+            velocityY: 0,
+            speed: 2,
+            jumpForce: -5.66,
+            gravity: 0.083,
+            facingRight: true
+        };
+
+        // Platforms
+        let platforms = [];
+        const platformWidth = 85;
+        const platformHeight = 18;
+
+        // Camera offset
+        let cameraY = 0;
+
+        // Candy canes (collectibles)
+        let candyCanes = [];
+
+        // Particles
+        let particles = [];
+
+        // Keys
+        const keys = {
+            left: false,
+            right: false
+        };
+
+        // Platform types
+        const PLATFORM_NORMAL = 0;
+        const PLATFORM_MOVING = 1;
+        const PLATFORM_BREAKING = 2;
+        const PLATFORM_SPRING = 3;
+
+        // Generate initial platforms
+        function generatePlatforms() {
+            platforms = [];
+
+            // Starting platform
+            platforms.push({
+                x: canvas.width / 2 - platformWidth / 2,
+                y: canvas.height - 100,
+                width: platformWidth,
+                height: platformHeight,
+                type: PLATFORM_NORMAL
+            });
+
+            // Generate platforms upward
+            let y = canvas.height - 180;
+            while (y > -500) {
+                const x = Math.random() * (canvas.width - platformWidth);
+
+                // Determine platform type based on height
+                let type = PLATFORM_NORMAL;
+                const rand = Math.random();
+                if (maxHeight > 500) {
+                    if (rand < 0.15) type = PLATFORM_MOVING;
+                    else if (rand < 0.25) type = PLATFORM_BREAKING;
+                    else if (rand < 0.35) type = PLATFORM_SPRING;
+                }
+
+                platforms.push({
+                    x: x,
+                    y: y,
+                    width: platformWidth,
+                    height: platformHeight,
+                    type: type,
+                    velocityX: type === PLATFORM_MOVING ? (Math.random() > 0.5 ? 0.67 : -0.67) : 0,
+                    broken: false
+                });
+
+                // Maybe add candy cane
+                if (Math.random() < 0.2) {
+                    candyCanes.push({
+                        x: x + platformWidth / 2,
+                        y: y - 30,
+                        collected: false
+                    });
+                }
+
+                y -= 60 + Math.random() * 40;
+            }
+        }
+
+        // Draw background
+        function drawBackground() {
+            // Sky gradient that changes with height
+            const heightFactor = Math.min(maxHeight / 2000, 1);
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+
+            // Transition from day to night as you go higher
+            const r1 = Math.floor(135 - heightFactor * 100);
+            const g1 = Math.floor(206 - heightFactor * 150);
+            const b1 = Math.floor(235 - heightFactor * 150);
+            const r2 = Math.floor(176 - heightFactor * 130);
+            const g2 = Math.floor(224 - heightFactor * 170);
+            const b2 = Math.floor(230 - heightFactor * 140);
+
+            gradient.addColorStop(0, `rgb(${r1}, ${g1}, ${b1})`);
+            gradient.addColorStop(1, `rgb(${r2}, ${g2}, ${b2})`);
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Stars (more visible at height)
+            if (heightFactor > 0.3) {
+                ctx.fillStyle = `rgba(255, 255, 255, ${heightFactor * 0.8})`;
+                for (let i = 0; i < 40; i++) {
+                    const starY = ((i * 73 + cameraY * 0.1) % canvas.height);
+                    const starX = (i * 47) % canvas.width;
+                    ctx.beginPath();
+                    ctx.arc(starX, starY, Math.random() * 1.5 + 0.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            // Clouds
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            for (let i = 0; i < 5; i++) {
+                const cloudY = ((i * 200 + cameraY * 0.3) % (canvas.height + 100)) - 50;
+                const cloudX = (i * 137) % canvas.width;
+                drawCloud(cloudX, cloudY);
+            }
+        }
+
+        // Draw cloud
+        function drawCloud(x, y) {
+            ctx.beginPath();
+            ctx.ellipse(x, y, 40, 20, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(x - 25, y + 10, 25, 15, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(x + 25, y + 10, 30, 18, 0, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Draw platform
+        function drawPlatform(p) {
+            if (p.broken) return;
+
+            const screenY = p.y + cameraY;
+            if (screenY > canvas.height + 50 || screenY < -50) return;
+
+            ctx.save();
+
+            if (p.type === PLATFORM_NORMAL) {
+                // Wooden present box platform
+                ctx.fillStyle = '#8B4513';
+                ctx.fillRect(p.x, screenY, p.width, p.height);
+                ctx.fillStyle = '#A0522D';
+                ctx.fillRect(p.x, screenY, p.width, 5);
+                // Snow on top
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.ellipse(p.x + p.width / 2, screenY, p.width / 2 - 5, 6, 0, Math.PI, 0);
+                ctx.fill();
+            } else if (p.type === PLATFORM_MOVING) {
+                // Blue ice platform
+                ctx.fillStyle = '#5dade2';
+                ctx.fillRect(p.x, screenY, p.width, p.height);
+                ctx.fillStyle = '#85c1e9';
+                ctx.fillRect(p.x, screenY, p.width, 5);
+                // Arrows
+                ctx.fillStyle = '#fff';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('↔', p.x + p.width / 2, screenY + 12);
+            } else if (p.type === PLATFORM_BREAKING) {
+                // Cracked candy platform
+                ctx.fillStyle = '#e74c3c';
+                ctx.fillRect(p.x, screenY, p.width, p.height);
+                // Crack lines
+                ctx.strokeStyle = '#c0392b';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(p.x + p.width * 0.3, screenY);
+                ctx.lineTo(p.x + p.width * 0.4, screenY + p.height);
+                ctx.moveTo(p.x + p.width * 0.6, screenY);
+                ctx.lineTo(p.x + p.width * 0.7, screenY + p.height);
+                ctx.stroke();
+            } else if (p.type === PLATFORM_SPRING) {
+                // Spring platform (green with spring)
+                ctx.fillStyle = '#27ae60';
+                ctx.fillRect(p.x, screenY, p.width, p.height);
+                // Spring coil
+                ctx.strokeStyle = '#ffd700';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                for (let i = 0; i < 5; i++) {
+                    const sx = p.x + p.width / 2 - 10 + (i * 5);
+                    ctx.moveTo(sx, screenY - 2);
+                    ctx.lineTo(sx + 2, screenY - 8);
+                    ctx.lineTo(sx + 5, screenY - 2);
+                }
+                ctx.stroke();
+            }
+
+            ctx.restore();
+        }
+
+        // Draw elf
+        function drawElf() {
+            const screenY = elf.y + cameraY;
+
+            ctx.save();
+            ctx.translate(elf.x + elf.width / 2, screenY + elf.height / 2);
+            if (!elf.facingRight) {
+                ctx.scale(-1, 1);
+            }
+            ctx.translate(-elf.width / 2, -elf.height / 2);
+
+            // Body (green tunic)
+            ctx.fillStyle = '#27ae60';
+            ctx.beginPath();
+            ctx.moveTo(5, 20);
+            ctx.lineTo(elf.width - 5, 20);
+            ctx.lineTo(elf.width - 3, elf.height - 10);
+            ctx.lineTo(3, elf.height - 10);
+            ctx.fill();
+
+            // Belt
+            ctx.fillStyle = '#2c3e50';
+            ctx.fillRect(3, 30, elf.width - 6, 6);
+            ctx.fillStyle = '#ffd700';
+            ctx.fillRect(elf.width / 2 - 4, 29, 8, 8);
+
+            // Head
+            ctx.fillStyle = '#fdbf6f';
+            ctx.beginPath();
+            ctx.arc(elf.width / 2, 12, 12, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Hat
+            ctx.fillStyle = '#c0392b';
+            ctx.beginPath();
+            ctx.moveTo(elf.width / 2 - 12, 8);
+            ctx.lineTo(elf.width / 2, -15);
+            ctx.lineTo(elf.width / 2 + 12, 8);
+            ctx.fill();
+
+            // Hat pom-pom
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(elf.width / 2, -15, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Hat trim
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(elf.width / 2 - 14, 5, 28, 5);
+
+            // Eyes
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(elf.width / 2 - 4, 10, 2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(elf.width / 2 + 4, 10, 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Smile
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(elf.width / 2, 14, 4, 0.1 * Math.PI, 0.9 * Math.PI);
+            ctx.stroke();
+
+            // Ears (pointy)
+            ctx.fillStyle = '#fdbf6f';
+            ctx.beginPath();
+            ctx.moveTo(elf.width / 2 - 12, 10);
+            ctx.lineTo(elf.width / 2 - 20, 5);
+            ctx.lineTo(elf.width / 2 - 12, 15);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(elf.width / 2 + 12, 10);
+            ctx.lineTo(elf.width / 2 + 20, 5);
+            ctx.lineTo(elf.width / 2 + 12, 15);
+            ctx.fill();
+
+            // Legs
+            ctx.fillStyle = '#27ae60';
+            ctx.fillRect(8, elf.height - 12, 10, 12);
+            ctx.fillRect(elf.width - 18, elf.height - 12, 10, 12);
+
+            // Shoes
+            ctx.fillStyle = '#c0392b';
+            ctx.beginPath();
+            ctx.ellipse(13, elf.height, 8, 5, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(elf.width - 13, elf.height, 8, 5, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        // Draw candy cane
+        function drawCandyCane(c) {
+            if (c.collected) return;
+
+            const screenY = c.y + cameraY;
+            if (screenY > canvas.height + 30 || screenY < -30) return;
+
+            ctx.save();
+            ctx.translate(c.x, screenY);
+
+            // Candy cane shape
+            ctx.strokeStyle = '#ff0000';
+            ctx.lineWidth = 8;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(0, 20);
+            ctx.lineTo(0, 0);
+            ctx.arc(8, 0, 8, Math.PI, 0, true);
+            ctx.stroke();
+
+            // White stripes
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([6, 6]);
+            ctx.beginPath();
+            ctx.moveTo(0, 20);
+            ctx.lineTo(0, 0);
+            ctx.arc(8, 0, 8, Math.PI, 0, true);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.restore();
+        }
+
+        // Create particles
+        function createParticles(x, y, color) {
+            for (let i = 0; i < 10; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 6,
+                    vy: (Math.random() - 0.5) * 6,
+                    size: Math.random() * 4 + 2,
+                    color: color,
+                    life: 1
+                });
+            }
+        }
+
+        // Update particles
+        function updateParticles() {
+            particles = particles.filter(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.03;
+
+                if (p.life > 0) {
+                    ctx.globalAlpha = p.life;
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y + cameraY, p.size * p.life, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                    return true;
+                }
+                return false;
+            });
+        }
+
+        // Update elf
+        function updateElf() {
+            // Horizontal movement
+            if (keys.left) {
+                elf.velocityX = -elf.speed;
+                elf.facingRight = false;
+            } else if (keys.right) {
+                elf.velocityX = elf.speed;
+                elf.facingRight = true;
+            } else {
+                elf.velocityX *= 0.8;
+            }
+
+            elf.x += elf.velocityX;
+
+            // Wrap around screen
+            if (elf.x + elf.width < 0) {
+                elf.x = canvas.width;
+            } else if (elf.x > canvas.width) {
+                elf.x = -elf.width;
+            }
+
+            // Gravity
+            elf.velocityY += elf.gravity;
+            elf.y += elf.velocityY;
+
+            // Platform collision (only when falling)
+            if (elf.velocityY > 0) {
+                for (let p of platforms) {
+                    if (p.broken) continue;
+
+                    const screenY = p.y + cameraY;
+
+                    // Check collision
+                    if (elf.x + elf.width > p.x && elf.x < p.x + p.width) {
+                        if (elf.y + elf.height > p.y && elf.y + elf.height < p.y + p.height + elf.velocityY) {
+
+                            if (p.type === PLATFORM_BREAKING) {
+                                p.broken = true;
+                                createParticles(p.x + p.width / 2, p.y, '#e74c3c');
+                            } else if (p.type === PLATFORM_SPRING) {
+                                elf.velocityY = elf.jumpForce * 1.8;
+                                createParticles(elf.x + elf.width / 2, elf.y + elf.height, '#ffd700');
+                            } else {
+                                elf.velocityY = elf.jumpForce;
+                            }
+
+                            elf.y = p.y - elf.height;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Collect candy canes
+            candyCanes.forEach(c => {
+                if (c.collected) return;
+                const screenY = c.y + cameraY;
+                const dx = (elf.x + elf.width / 2) - c.x;
+                const dy = (elf.y + elf.height / 2) - c.y;
+                if (Math.sqrt(dx * dx + dy * dy) < 30) {
+                    c.collected = true;
+                    score += 50;
+                    createParticles(c.x, c.y, '#ff0000');
+                }
+            });
+
+            // Update camera and score
+            const elfScreenY = elf.y + cameraY;
+            if (elfScreenY < canvas.height * 0.4) {
+                const diff = canvas.height * 0.4 - elfScreenY;
+                cameraY += diff;
+
+                const newHeight = Math.floor(-elf.y / 10);
+                if (newHeight > maxHeight) {
+                    maxHeight = newHeight;
+                    score = maxHeight;
+                    document.getElementById('currentScore').textContent = score;
+                }
+            }
+
+            // Generate new platforms above
+            const highestPlatform = Math.min(...platforms.map(p => p.y));
+            if (highestPlatform + cameraY > -200) {
+                let y = highestPlatform - 60 - Math.random() * 40;
+
+                let type = PLATFORM_NORMAL;
+                const rand = Math.random();
+                if (maxHeight > 300) {
+                    if (rand < 0.15) type = PLATFORM_MOVING;
+                    else if (rand < 0.25) type = PLATFORM_BREAKING;
+                    else if (rand < 0.35) type = PLATFORM_SPRING;
+                }
+
+                platforms.push({
+                    x: Math.random() * (canvas.width - platformWidth),
+                    y: y,
+                    width: platformWidth,
+                    height: platformHeight,
+                    type: type,
+                    velocityX: type === PLATFORM_MOVING ? (Math.random() > 0.5 ? 0.67 : -0.67) : 0,
+                    broken: false
+                });
+
+                if (Math.random() < 0.2) {
+                    candyCanes.push({
+                        x: Math.random() * (canvas.width - 20) + 10,
+                        y: y - 30,
+                        collected: false
+                    });
+                }
+            }
+
+            // Remove platforms far below
+            platforms = platforms.filter(p => p.y + cameraY < canvas.height + 100);
+            candyCanes = candyCanes.filter(c => c.y + cameraY < canvas.height + 100);
+
+            // Game over if fell too far
+            if (elf.y + cameraY > canvas.height + 50) {
+                gameOver();
+            }
+        }
+
+        // Update moving platforms
+        function updatePlatforms() {
+            platforms.forEach(p => {
+                if (p.type === PLATFORM_MOVING) {
+                    p.x += p.velocityX;
+                    if (p.x <= 0 || p.x + p.width >= canvas.width) {
+                        p.velocityX = -p.velocityX;
+                    }
+                }
+            });
+        }
+
+        // Game over
+        function gameOver() {
+            gameRunning = false;
+
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('elfHopHighScore', highScore);
+            }
+
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('highScore').textContent = highScore;
+            document.getElementById('gameOverOverlay').classList.remove('hidden');
+        }
+
+        // Start game
+        function startGame() {
+            gameRunning = true;
+            score = 0;
+            maxHeight = 0;
+            cameraY = 0;
+            particles = [];
+            candyCanes = [];
+
+            elf.x = canvas.width / 2 - elf.width / 2;
+            elf.y = canvas.height - 150;
+            elf.velocityX = 0;
+            elf.velocityY = elf.jumpForce;
+
+            document.getElementById('currentScore').textContent = score;
+            document.getElementById('startOverlay').classList.add('hidden');
+            document.getElementById('gameOverOverlay').classList.add('hidden');
+
+            generatePlatforms();
+            gameLoop();
+        }
+
+        // Game loop
+        function gameLoop() {
+            if (!gameRunning) return;
+
+            frameCount++;
+
+            // Update
+            updateElf();
+            updatePlatforms();
+
+            // Draw
+            drawBackground();
+
+            // Draw platforms
+            platforms.forEach(p => drawPlatform(p));
+
+            // Draw candy canes
+            candyCanes.forEach(c => drawCandyCane(c));
+
+            // Draw elf
+            drawElf();
+
+            // Draw particles
+            updateParticles();
+
+            // Score display on canvas
+            ctx.fillStyle = '#ffd700';
+            ctx.font = 'bold 24px "Cinzel Decorative", serif';
+            ctx.textAlign = 'left';
+            ctx.fillText(`${score}m`, 20, 35);
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+                keys.left = true;
+            }
+            if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+                keys.right = true;
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+                keys.left = false;
+            }
+            if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+                keys.right = false;
+            }
+        });
+
+        // Button listeners
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('restartBtn').addEventListener('click', startGame);
+
+        // Initial draw
+        drawBackground();
+    </script>
+</body>
+</html>

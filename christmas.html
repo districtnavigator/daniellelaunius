@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Christmas Day - Reindeer Run | 10 Days Till Christmas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cinzel+Decorative:wght@700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', Georgia, serif;
+            background: linear-gradient(135deg, #1a472a 0%, #0d2818 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 10px;
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+        }
+
+        .header h1 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2rem;
+            color: #ffd700;
+            margin-bottom: 3px;
+        }
+
+        .header p {
+            color: #a8d4ff;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #ffd700;
+            text-decoration: none;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s;
+            z-index: 200;
+        }
+
+        .back-link:hover {
+            transform: translateX(-5px);
+        }
+
+        .back-link img {
+            width: 30px;
+            height: 30px;
+        }
+
+        /* Game Container */
+        .game-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        #gameCanvas {
+            border: 4px solid #ffd700;
+            border-radius: 15px;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
+            cursor: pointer;
+        }
+
+        /* Score Display */
+        .score-display {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 1.3rem;
+            color: #ffd700;
+            margin-top: 8px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        /* Instructions */
+        .instructions {
+            margin-top: 5px;
+            text-align: center;
+            color: #a8d4ff;
+            font-size: 0.85rem;
+        }
+
+        /* Start/Game Over Overlay */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .overlay.hidden {
+            display: none;
+        }
+
+        .overlay h2 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 3rem;
+            color: #ffd700;
+            margin-bottom: 20px;
+        }
+
+        .overlay p {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .overlay .final-score {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 2rem;
+            color: #ff6b6b;
+            margin: 20px 0;
+        }
+
+        .play-btn {
+            background: linear-gradient(145deg, #c41e3a, #8b0000);
+            border: 3px solid #ffd700;
+            color: #ffd700;
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 1.3rem;
+            padding: 15px 40px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+        }
+
+        .high-score {
+            color: #a8d4ff;
+            margin-top: 15px;
+        }
+
+        .christmas-title {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 1.2rem;
+            color: #ff6b6b;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+        }
+
+        /* Mobile message */
+        .mobile-message {
+            display: none;
+            min-height: 100vh;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .mobile-message img {
+            width: 120px;
+            margin-bottom: 20px;
+        }
+
+        .mobile-message h2 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2rem;
+            color: #f5d742;
+            margin-bottom: 15px;
+        }
+
+        .mobile-message p {
+            color: #fff;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 1024px) {
+            .header, .game-wrapper, .back-link {
+                display: none !important;
+            }
+            .mobile-message {
+                display: flex;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Message -->
+    <div class="mobile-message">
+        <img src="icons/614133-winter/svg/009-santa-claus.svg" alt="Santa">
+        <h2>Santa's workshop doesn't fit on small screens!</h2>
+        <p>Please visit on a computer to play.</p>
+    </div>
+
+    <a href="index.html" class="back-link">
+        <span>←</span> Back to Calendar
+    </a>
+
+    <div class="header">
+        <h1>Christmas Day: Reindeer Run</h1>
+        <p>December 25th</p>
+    </div>
+
+    <div class="game-wrapper">
+        <canvas id="gameCanvas" width="900" height="500"></canvas>
+        <div class="score-display">Score: <span id="currentScore">0</span> | Candy Canes: <span id="candyCount">0</span></div>
+        <div class="instructions">Press Space/W or Click to Jump! S to Duck! Double-tap for double jump!</div>
+    </div>
+
+    <!-- Start Overlay -->
+    <div class="overlay" id="startOverlay">
+        <div class="christmas-title">Merry Christmas!</div>
+        <h2>Reindeer Run</h2>
+        <img src="icons/614133-winter/svg/030-deer.svg" alt="Reindeer" style="width: 100px; margin: 20px;">
+        <p>Help Rudolf run across the rooftops!</p>
+        <p style="font-size: 0.9rem; color: #a8d4ff;">Jump over chimneys, duck under stockings, collect candy canes!</p>
+        <button class="play-btn" id="startBtn">Start Running!</button>
+    </div>
+
+    <!-- Game Over Overlay -->
+    <div class="overlay hidden" id="gameOverOverlay">
+        <h2>Rudolf Tumbled!</h2>
+        <div class="final-score">Score: <span id="finalScore">0</span></div>
+        <p>Candy Canes Collected: <span id="finalCandy">0</span></p>
+        <p class="high-score">Best: <span id="highScore">0</span></p>
+        <button class="play-btn" id="restartBtn">Run Again</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Game state
+        let gameRunning = false;
+        let gameReady = false;
+        let score = 0;
+        let candyCount = 0;
+        let highScore = localStorage.getItem('reindeerRunHighScore') || 0;
+        document.getElementById('highScore').textContent = highScore;
+
+        // Game speed (increases over time)
+        let gameSpeed = 3;
+        let baseSpeed = 3;
+        let maxSpeed = 8;
+        let speedIncrement = 0.0005;
+
+        // Ground level
+        const groundY = canvas.height - 60;
+
+        // Rudolf (the reindeer)
+        const rudolf = {
+            x: 80,
+            y: groundY,
+            width: 70,
+            height: 55,
+            velocityY: 0,
+            gravity: 0.15,
+            jumpStrength: -8,
+            maxFallSpeed: 4,
+            isJumping: false,
+            canDoubleJump: true,
+            isDucking: false,
+            duckHeight: 35,
+            normalHeight: 55,
+            runFrame: 0,
+            runFrameCount: 0
+        };
+
+        // Load images
+        const reindeerImg = new Image();
+        reindeerImg.src = 'icons/614133-winter/svg/030-deer.svg';
+
+        const candyCaneImg = new Image();
+        candyCaneImg.src = 'icons/614133-winter/svg/025-candy-cane.svg';
+
+        const presentImg = new Image();
+        presentImg.src = 'icons/614133-winter/svg/015-present.svg';
+
+        const stockingImg = new Image();
+        stockingImg.src = 'icons/614133-winter/svg/035-socks.svg';
+
+        const snowflakeImg = new Image();
+        snowflakeImg.src = 'icons/614133-winter/svg/019-snowflake.svg';
+
+        // Obstacles
+        let obstacles = [];
+        let collectibles = [];
+        let frameCount = 0;
+        let nextObstacleFrame = 100;
+
+        // Rooftops (parallax background)
+        let rooftops = [];
+        for (let i = 0; i < 5; i++) {
+            rooftops.push({
+                x: i * 250,
+                width: 250,
+                height: Math.random() * 30 + 40
+            });
+        }
+
+        // Background buildings (far parallax)
+        let buildings = [];
+        for (let i = 0; i < 8; i++) {
+            // Pre-generate window pattern for each building
+            const buildingWidth = Math.random() * 60 + 80;
+            const buildingHeight = Math.random() * 100 + 100;
+            const windowColors = ['#ffd700', '#ff6b6b', '#4ecdc4', '#ffe66d'];
+            const windows = [];
+
+            for (let row = 0; row < Math.floor(buildingHeight / 25); row++) {
+                for (let col = 0; col < Math.floor(buildingWidth / 20); col++) {
+                    if (Math.random() > 0.3) {
+                        windows.push({
+                            row: row,
+                            col: col,
+                            color: windowColors[Math.floor(Math.random() * windowColors.length)]
+                        });
+                    }
+                }
+            }
+
+            buildings.push({
+                x: i * 150,
+                width: buildingWidth,
+                height: buildingHeight,
+                windows: windows
+            });
+        }
+
+        // Stars
+        let stars = [];
+        for (let i = 0; i < 60; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * (canvas.height - 150),
+                size: Math.random() * 2 + 1,
+                twinkle: Math.random() * Math.PI * 2
+            });
+        }
+
+        // Snowflakes
+        let snowflakes = [];
+        for (let i = 0; i < 30; i++) {
+            snowflakes.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 3 + 2,
+                speed: Math.random() * 1 + 0.5,
+                drift: Math.random() * 0.5 - 0.25
+            });
+        }
+
+        // Draw night sky background
+        function drawBackground() {
+            // Night sky gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#0a0a2e');
+            gradient.addColorStop(0.4, '#1a1a4e');
+            gradient.addColorStop(0.7, '#2d1f3d');
+            gradient.addColorStop(1, '#1a472a');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Moon
+            ctx.fillStyle = '#fffacd';
+            ctx.beginPath();
+            ctx.arc(canvas.width - 100, 80, 40, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#0a0a2e';
+            ctx.beginPath();
+            ctx.arc(canvas.width - 85, 75, 35, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Draw stars
+        function drawStars() {
+            stars.forEach(star => {
+                star.twinkle += 0.05;
+                const alpha = 0.5 + Math.sin(star.twinkle) * 0.5;
+                ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        // Draw snowflakes
+        function drawSnowflakes() {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            snowflakes.forEach(flake => {
+                ctx.beginPath();
+                ctx.arc(flake.x, flake.y, flake.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Move snowflakes
+                flake.y += flake.speed;
+                flake.x += flake.drift + Math.sin(frameCount * 0.02 + flake.x) * 0.3;
+
+                if (flake.y > canvas.height) {
+                    flake.y = -10;
+                    flake.x = Math.random() * canvas.width;
+                }
+                if (flake.x > canvas.width) flake.x = 0;
+                if (flake.x < 0) flake.x = canvas.width;
+            });
+        }
+
+        // Draw far buildings (parallax)
+        function drawBuildings() {
+            buildings.forEach(building => {
+                // Building body
+                ctx.fillStyle = '#1a2a3a';
+                ctx.fillRect(building.x, canvas.height - 60 - building.height, building.width, building.height);
+
+                // Windows (lit up for Christmas) - use pre-generated pattern
+                ctx.globalAlpha = 0.7;
+                building.windows.forEach(win => {
+                    ctx.fillStyle = win.color;
+                    ctx.fillRect(
+                        building.x + 8 + win.col * 20,
+                        canvas.height - 60 - building.height + 10 + win.row * 25,
+                        10, 15
+                    );
+                });
+                ctx.globalAlpha = 1;
+
+                // Move building (slow parallax)
+                building.x -= gameSpeed * 0.2;
+                if (building.x + building.width < 0) {
+                    // Generate new building with new window pattern
+                    building.x = canvas.width + Math.random() * 100;
+                    building.height = Math.random() * 100 + 100;
+                    building.width = Math.random() * 60 + 80;
+
+                    const windowColors = ['#ffd700', '#ff6b6b', '#4ecdc4', '#ffe66d'];
+                    building.windows = [];
+                    for (let row = 0; row < Math.floor(building.height / 25); row++) {
+                        for (let col = 0; col < Math.floor(building.width / 20); col++) {
+                            if (Math.random() > 0.3) {
+                                building.windows.push({
+                                    row: row,
+                                    col: col,
+                                    color: windowColors[Math.floor(Math.random() * windowColors.length)]
+                                });
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Draw rooftops
+        function drawRooftops() {
+            rooftops.forEach(roof => {
+                // Move roof
+                roof.x -= gameSpeed;
+                if (roof.x + roof.width < 0) {
+                    roof.x = canvas.width;
+                    roof.height = Math.random() * 30 + 40;
+                }
+            });
+        }
+
+        // Draw ground (snowy rooftop)
+        function drawGround() {
+            // Snow ground
+            ctx.fillStyle = '#e8f4f8';
+            ctx.fillRect(0, groundY, canvas.width, 60);
+
+            // Snow texture bumps on top
+            ctx.fillStyle = '#fff';
+            for (let i = 0; i < canvas.width; i += 40) {
+                ctx.beginPath();
+                ctx.ellipse(i + 20, groundY, 25, 8, 0, Math.PI, 0);
+                ctx.fill();
+            }
+        }
+
+        // Draw Rudolf
+        function drawRudolf() {
+            ctx.save();
+
+            const drawY = rudolf.isDucking ? rudolf.y + (rudolf.normalHeight - rudolf.duckHeight) : rudolf.y;
+            const drawHeight = rudolf.isDucking ? rudolf.duckHeight : rudolf.height;
+
+            // Running animation (bob up and down)
+            rudolf.runFrameCount++;
+            if (rudolf.runFrameCount > 5) {
+                rudolf.runFrame = (rudolf.runFrame + 1) % 4;
+                rudolf.runFrameCount = 0;
+            }
+
+            const bobOffset = rudolf.isJumping ? 0 : Math.sin(rudolf.runFrame * Math.PI / 2) * 3;
+
+            // Draw reindeer
+            if (rudolf.isDucking) {
+                // Ducking - squash the image
+                ctx.drawImage(
+                    reindeerImg,
+                    rudolf.x,
+                    drawY - drawHeight + bobOffset,
+                    rudolf.width * 1.2,
+                    drawHeight
+                );
+            } else {
+                ctx.drawImage(
+                    reindeerImg,
+                    rudolf.x,
+                    drawY - rudolf.height + bobOffset,
+                    rudolf.width,
+                    rudolf.height
+                );
+            }
+
+            // Red nose glow (it's Rudolf!) - centered on character
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.6)';
+            ctx.beginPath();
+            ctx.arc(rudolf.x + rudolf.width / 2, drawY - drawHeight / 2 + bobOffset, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#ff0000';
+            ctx.beginPath();
+            ctx.arc(rudolf.x + rudolf.width / 2, drawY - drawHeight / 2 + bobOffset, 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        // Spawn obstacle
+        function spawnObstacle() {
+            const types = ['chimney', 'chimney', 'chimney', 'stocking', 'present_stack'];
+            const type = types[Math.floor(Math.random() * types.length)];
+
+            let obstacle = {
+                x: canvas.width,
+                type: type,
+                passed: false
+            };
+
+            if (type === 'chimney') {
+                obstacle.width = 50 + Math.random() * 30;
+                obstacle.height = 60 + Math.random() * 40;
+                obstacle.y = groundY - obstacle.height;
+            } else if (type === 'stocking') {
+                // Hanging stocking (need to duck)
+                obstacle.width = 40;
+                obstacle.height = 50;
+                obstacle.y = groundY - 90; // Hanging height
+                obstacle.hanging = true;
+            } else if (type === 'present_stack') {
+                obstacle.width = 45;
+                obstacle.height = 50 + Math.random() * 30;
+                obstacle.y = groundY - obstacle.height;
+            }
+
+            obstacles.push(obstacle);
+
+            // Maybe spawn a collectible candy cane
+            if (Math.random() > 0.5) {
+                collectibles.push({
+                    x: canvas.width + 100 + Math.random() * 200,
+                    y: groundY - 80 - Math.random() * 60,
+                    width: 30,
+                    height: 40,
+                    collected: false
+                });
+            }
+        }
+
+        // Draw obstacles
+        function drawObstacles() {
+            obstacles.forEach((obs, index) => {
+                if (obs.type === 'chimney') {
+                    // Brick chimney
+                    ctx.fillStyle = '#8b0000';
+                    ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+
+                    // Brick pattern
+                    ctx.strokeStyle = '#5c0000';
+                    ctx.lineWidth = 2;
+                    for (let row = 0; row < obs.height; row += 15) {
+                        const offset = (row / 15) % 2 === 0 ? 0 : obs.width / 2;
+                        ctx.beginPath();
+                        ctx.moveTo(obs.x, obs.y + row);
+                        ctx.lineTo(obs.x + obs.width, obs.y + row);
+                        ctx.stroke();
+                        ctx.beginPath();
+                        ctx.moveTo(obs.x + offset, obs.y + row);
+                        ctx.lineTo(obs.x + offset, obs.y + row + 15);
+                        ctx.stroke();
+                    }
+
+                    // Snow on top
+                    ctx.fillStyle = '#fff';
+                    ctx.beginPath();
+                    ctx.ellipse(obs.x + obs.width / 2, obs.y, obs.width / 2 + 5, 8, 0, 0, Math.PI * 2);
+                    ctx.fill();
+
+                } else if (obs.type === 'stocking') {
+                    // Draw hanging line
+                    ctx.strokeStyle = '#2d5a2d';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(obs.x + obs.width / 2, 0);
+                    ctx.lineTo(obs.x + obs.width / 2, obs.y);
+                    ctx.stroke();
+
+                    // Draw stocking using image
+                    ctx.drawImage(stockingImg, obs.x, obs.y, obs.width, obs.height);
+
+                } else if (obs.type === 'present_stack') {
+                    // Stack of presents
+                    const colors = ['#c41e3a', '#228b22', '#ffd700'];
+                    let stackY = obs.y + obs.height;
+                    let presentHeight = obs.height / 2;
+
+                    for (let i = 0; i < 2; i++) {
+                        stackY -= presentHeight;
+                        ctx.fillStyle = colors[i % colors.length];
+                        ctx.fillRect(obs.x, stackY, obs.width - i * 5, presentHeight - 5);
+
+                        // Ribbon
+                        ctx.fillStyle = '#ffd700';
+                        ctx.fillRect(obs.x + (obs.width - i * 5) / 2 - 3, stackY, 6, presentHeight - 5);
+                        ctx.fillRect(obs.x, stackY + presentHeight / 2 - 3, obs.width - i * 5, 6);
+                    }
+                }
+
+                // Move obstacle
+                obs.x -= gameSpeed;
+
+                // Check if passed
+                if (!obs.passed && obs.x + obs.width < rudolf.x) {
+                    obs.passed = true;
+                    score += 10;
+                    document.getElementById('currentScore').textContent = score;
+                }
+
+                // Remove off-screen
+                if (obs.x + obs.width < -50) {
+                    obstacles.splice(index, 1);
+                }
+            });
+        }
+
+        // Draw collectibles
+        function drawCollectibles() {
+            collectibles.forEach((candy, index) => {
+                if (!candy.collected) {
+                    // Floating animation
+                    const floatY = candy.y + Math.sin(frameCount * 0.1 + candy.x) * 5;
+
+                    // Glow effect
+                    ctx.fillStyle = 'rgba(255, 215, 0, 0.3)';
+                    ctx.beginPath();
+                    ctx.arc(candy.x + candy.width / 2, floatY + candy.height / 2, 25, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Draw candy cane
+                    ctx.drawImage(candyCaneImg, candy.x, floatY, candy.width, candy.height);
+
+                    // Check collection
+                    if (checkCollectibleCollision(candy, floatY)) {
+                        candy.collected = true;
+                        candyCount++;
+                        score += 25;
+                        document.getElementById('candyCount').textContent = candyCount;
+                        document.getElementById('currentScore').textContent = score;
+                    }
+                }
+
+                // Move collectible
+                candy.x -= gameSpeed;
+
+                // Remove off-screen
+                if (candy.x + candy.width < -50) {
+                    collectibles.splice(index, 1);
+                }
+            });
+        }
+
+        // Check collectible collision
+        function checkCollectibleCollision(candy, floatY) {
+            const rudolfBox = {
+                x: rudolf.x + 10,
+                y: rudolf.y - rudolf.height + 10,
+                width: rudolf.width - 20,
+                height: rudolf.height - 10
+            };
+
+            return rudolfBox.x < candy.x + candy.width &&
+                   rudolfBox.x + rudolfBox.width > candy.x &&
+                   rudolfBox.y < floatY + candy.height &&
+                   rudolfBox.y + rudolfBox.height > floatY;
+        }
+
+        // Check obstacle collision
+        function checkCollision() {
+            const rudolfHeight = rudolf.isDucking ? rudolf.duckHeight : rudolf.height;
+            const rudolfY = rudolf.isDucking ? rudolf.y - rudolf.duckHeight : rudolf.y - rudolf.height;
+
+            // Collision box (slightly smaller than sprite)
+            const rudolfBox = {
+                x: rudolf.x + 15,
+                y: rudolfY + 10,
+                width: rudolf.width - 25,
+                height: rudolfHeight - 15
+            };
+
+            for (let obs of obstacles) {
+                let obsBox;
+
+                if (obs.hanging) {
+                    // Hanging obstacle (stocking) - collision from above
+                    obsBox = {
+                        x: obs.x + 5,
+                        y: obs.y,
+                        width: obs.width - 10,
+                        height: obs.height
+                    };
+                } else {
+                    // Ground obstacle
+                    obsBox = {
+                        x: obs.x + 5,
+                        y: obs.y,
+                        width: obs.width - 10,
+                        height: obs.height
+                    };
+                }
+
+                // AABB collision
+                if (rudolfBox.x < obsBox.x + obsBox.width &&
+                    rudolfBox.x + rudolfBox.width > obsBox.x &&
+                    rudolfBox.y < obsBox.y + obsBox.height &&
+                    rudolfBox.y + rudolfBox.height > obsBox.y) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        // Jump
+        function jump() {
+            if (!rudolf.isJumping) {
+                rudolf.velocityY = rudolf.jumpStrength;
+                rudolf.isJumping = true;
+                rudolf.canDoubleJump = true;
+            } else if (rudolf.canDoubleJump) {
+                rudolf.velocityY = rudolf.jumpStrength * 0.85;
+                rudolf.canDoubleJump = false;
+            }
+        }
+
+        // Duck
+        function startDuck() {
+            if (!rudolf.isJumping) {
+                rudolf.isDucking = true;
+            }
+        }
+
+        function endDuck() {
+            rudolf.isDucking = false;
+        }
+
+        // Update Rudolf physics
+        function updateRudolf() {
+            if (rudolf.isJumping) {
+                rudolf.velocityY += rudolf.gravity;
+
+                // Cap fall speed
+                if (rudolf.velocityY > rudolf.maxFallSpeed) {
+                    rudolf.velocityY = rudolf.maxFallSpeed;
+                }
+
+                rudolf.y += rudolf.velocityY;
+
+                if (rudolf.y >= groundY) {
+                    rudolf.y = groundY;
+                    rudolf.velocityY = 0;
+                    rudolf.isJumping = false;
+                    rudolf.canDoubleJump = true;
+                }
+            }
+        }
+
+        // Ready loop
+        function readyLoop() {
+            if (gameRunning) return;
+            if (!gameReady) return;
+
+            frameCount++;
+
+            // Bob Rudolf
+            rudolf.y = groundY;
+            const bobOffset = Math.sin(frameCount * 0.08) * 5;
+
+            drawBackground();
+            drawStars();
+            drawBuildings();
+            drawRooftops();
+            drawGround();
+            drawSnowflakes();
+
+            // Draw Rudolf with bobbing
+            ctx.drawImage(
+                reindeerImg,
+                rudolf.x,
+                rudolf.y - rudolf.height + bobOffset,
+                rudolf.width,
+                rudolf.height
+            );
+
+            // Red nose - centered on character
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.6)';
+            ctx.beginPath();
+            ctx.arc(rudolf.x + rudolf.width / 2, rudolf.y - rudolf.height / 2 + bobOffset, 8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#ff0000';
+            ctx.beginPath();
+            ctx.arc(rudolf.x + rudolf.width / 2, rudolf.y - rudolf.height / 2 + bobOffset, 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Instructions
+            ctx.fillStyle = '#ffd700';
+            ctx.font = 'bold 24px "Cinzel Decorative", serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Press Space or Click to Start!', canvas.width / 2, 80);
+
+            requestAnimationFrame(readyLoop);
+        }
+
+        // Game loop
+        function gameLoop() {
+            if (!gameRunning) return;
+
+            frameCount++;
+
+            // Increase speed over time
+            if (gameSpeed < maxSpeed) {
+                gameSpeed += speedIncrement;
+            }
+
+            // Update Rudolf
+            updateRudolf();
+
+            // Spawn obstacles
+            if (frameCount >= nextObstacleFrame) {
+                spawnObstacle();
+                nextObstacleFrame = frameCount + 120 + Math.random() * 80;
+            }
+
+            // Check collision
+            if (checkCollision()) {
+                gameOver();
+                return;
+            }
+
+            // Draw everything
+            drawBackground();
+            drawStars();
+            drawBuildings();
+            drawRooftops();
+            drawGround();
+            drawObstacles();
+            drawCollectibles();
+            drawSnowflakes();
+            drawRudolf();
+
+            // Draw score
+            ctx.fillStyle = '#ffd700';
+            ctx.font = 'bold 28px "Cinzel Decorative", serif';
+            ctx.textAlign = 'left';
+            ctx.fillText(`Score: ${score}`, 20, 40);
+
+            // Draw candy count
+            ctx.drawImage(candyCaneImg, canvas.width - 120, 15, 25, 35);
+            ctx.fillText(`${candyCount}`, canvas.width - 85, 42);
+
+            // Score tick (distance)
+            if (frameCount % 10 === 0) {
+                score++;
+                document.getElementById('currentScore').textContent = score;
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Enter ready state
+        function enterReadyState() {
+            gameRunning = false;
+            gameReady = true;
+            score = 0;
+            candyCount = 0;
+            frameCount = 0;
+            gameSpeed = baseSpeed;
+            nextObstacleFrame = 100;
+
+            document.getElementById('currentScore').textContent = score;
+            document.getElementById('candyCount').textContent = candyCount;
+
+            // Reset Rudolf
+            rudolf.y = groundY;
+            rudolf.velocityY = 0;
+            rudolf.isJumping = false;
+            rudolf.canDoubleJump = true;
+            rudolf.isDucking = false;
+
+            // Clear obstacles and collectibles
+            obstacles = [];
+            collectibles = [];
+
+            // Reset buildings
+            buildings = [];
+            for (let i = 0; i < 8; i++) {
+                const buildingWidth = Math.random() * 60 + 80;
+                const buildingHeight = Math.random() * 100 + 100;
+                const windowColors = ['#ffd700', '#ff6b6b', '#4ecdc4', '#ffe66d'];
+                const windows = [];
+
+                for (let row = 0; row < Math.floor(buildingHeight / 25); row++) {
+                    for (let col = 0; col < Math.floor(buildingWidth / 20); col++) {
+                        if (Math.random() > 0.3) {
+                            windows.push({
+                                row: row,
+                                col: col,
+                                color: windowColors[Math.floor(Math.random() * windowColors.length)]
+                            });
+                        }
+                    }
+                }
+
+                buildings.push({
+                    x: i * 150,
+                    width: buildingWidth,
+                    height: buildingHeight,
+                    windows: windows
+                });
+            }
+
+            // Hide overlays
+            document.getElementById('startOverlay').classList.add('hidden');
+            document.getElementById('gameOverOverlay').classList.add('hidden');
+
+            readyLoop();
+        }
+
+        // Start game
+        function startGame() {
+            if (gameReady && !gameRunning) {
+                gameRunning = true;
+                gameLoop();
+            }
+        }
+
+        // Game over
+        function gameOver() {
+            gameRunning = false;
+            gameReady = false;
+
+            // Update high score
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('reindeerRunHighScore', highScore);
+            }
+
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('finalCandy').textContent = candyCount;
+            document.getElementById('highScore').textContent = highScore;
+            document.getElementById('gameOverOverlay').classList.remove('hidden');
+        }
+
+        // Event listeners
+        document.getElementById('startBtn').addEventListener('click', enterReadyState);
+        document.getElementById('restartBtn').addEventListener('click', enterReadyState);
+
+        canvas.addEventListener('click', () => {
+            if (gameReady && !gameRunning) {
+                startGame();
+            } else if (gameRunning) {
+                jump();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
+                e.preventDefault();
+                if (gameReady && !gameRunning) {
+                    startGame();
+                } else if (gameRunning) {
+                    jump();
+                }
+            } else if (e.code === 'ArrowDown' || e.code === 'KeyS') {
+                e.preventDefault();
+                if (gameRunning) {
+                    startDuck();
+                }
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.code === 'ArrowDown' || e.code === 'KeyS') {
+                endDuck();
+            }
+        });
+
+        // Initial draw
+        drawBackground();
+        drawStars();
+        drawBuildings();
+        drawRooftops();
+        drawGround();
+        drawSnowflakes();
+    </script>
+</body>
+</html>

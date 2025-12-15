@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 5 - Snowball Toss | 10 Days Till Christmas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cinzel+Decorative:wght@700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', Georgia, serif;
+            background: linear-gradient(135deg, #1a3a4a 0%, #0d2030 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .header {
+            text-align: center;
+            padding: 10px;
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+        }
+
+        .header h1 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2rem;
+            color: #ffd700;
+            margin-bottom: 3px;
+        }
+
+        .header p {
+            color: #a8d4ff;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #ffd700;
+            text-decoration: none;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s;
+            z-index: 10;
+        }
+
+        .back-link:hover {
+            transform: translateX(-5px);
+        }
+
+        .game-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        #gameCanvas {
+            border: 4px solid #ffd700;
+            border-radius: 15px;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
+            cursor: crosshair;
+        }
+
+        .score-display {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 1.3rem;
+            color: #ffd700;
+            margin-top: 8px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .instructions {
+            margin-top: 5px;
+            text-align: center;
+            color: #a8d4ff;
+            font-size: 0.85rem;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .overlay.hidden {
+            display: none;
+        }
+
+        .overlay h2 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 3rem;
+            color: #ffd700;
+            margin-bottom: 20px;
+        }
+
+        .overlay p {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .overlay .final-score {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 2rem;
+            color: #ff6b6b;
+            margin: 20px 0;
+        }
+
+        .play-btn {
+            background: linear-gradient(145deg, #c41e3a, #8b0000);
+            border: 3px solid #ffd700;
+            color: #ffd700;
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 1.3rem;
+            padding: 15px 40px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+        }
+
+        .high-score {
+            color: #a8d4ff;
+            margin-top: 15px;
+        }
+
+        .mobile-message {
+            display: none;
+            min-height: 100vh;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .mobile-message img {
+            width: 120px;
+            margin-bottom: 20px;
+        }
+
+        .mobile-message h2 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2rem;
+            color: #f5d742;
+            margin-bottom: 15px;
+        }
+
+        .mobile-message p {
+            color: #fff;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 1024px) {
+            .header, .game-wrapper, .back-link {
+                display: none !important;
+            }
+            .mobile-message {
+                display: flex;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-message">
+        <img src="icons/614133-winter/svg/019-snowflake.svg" alt="Snowflake">
+        <h2>Santa's workshop doesn't fit on small screens!</h2>
+        <p>Please visit on a computer to play.</p>
+    </div>
+
+    <a href="index.html" class="back-link">
+        <span>←</span> Back to Calendar
+    </a>
+
+    <div class="header">
+        <h1>Day 5: Snowball Toss</h1>
+        <p>December 19th</p>
+    </div>
+
+    <div class="game-wrapper">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div class="score-display">Score: <span id="currentScore">0</span> | Round: <span id="round">1</span>/10</div>
+        <div class="instructions">Click and drag to aim, release to throw!</div>
+    </div>
+
+    <div class="overlay" id="startOverlay">
+        <h2>Snowball Toss!</h2>
+        <img src="icons/614133-winter/svg/019-snowflake.svg" alt="Snowflake" style="width: 100px; margin: 20px;">
+        <p>Throw snowballs into the bucket!</p>
+        <p style="font-size: 0.9rem; color: #a8d4ff;">Watch out for the wind!</p>
+        <button class="play-btn" id="startBtn">Start Throwing!</button>
+    </div>
+
+    <div class="overlay hidden" id="gameOverOverlay">
+        <h2>Game Complete!</h2>
+        <div class="final-score">Score: <span id="finalScore">0</span></div>
+        <p class="high-score">Best: <span id="highScore">0</span></p>
+        <button class="play-btn" id="restartBtn">Play Again</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Game state
+        let gameRunning = false;
+        let score = 0;
+        let round = 1;
+        let maxRounds = 10;
+        let highScore = localStorage.getItem('snowballTossHighScore') || 0;
+        let frameCount = 0;
+        document.getElementById('highScore').textContent = highScore;
+
+        // Wind
+        let wind = 0;
+        let targetWind = 0;
+
+        // Snowball
+        let snowball = null;
+        let isAiming = false;
+        let aimStart = { x: 0, y: 0 };
+        let aimEnd = { x: 0, y: 0 };
+
+        // Bucket position (moves each round)
+        let bucket = {
+            x: 600,
+            y: 450,
+            width: 80,
+            height: 60
+        };
+
+        // Trajectory preview dots
+        let trajectoryDots = [];
+
+        // Particles
+        let particles = [];
+
+        // Snowflakes background
+        let snowflakes = [];
+        for (let i = 0; i < 60; i++) {
+            snowflakes.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 3 + 1,
+                speed: Math.random() * 1 + 0.5,
+                wobble: Math.random() * Math.PI * 2
+            });
+        }
+
+        // Throw starting position
+        const throwPos = { x: 100, y: 480 };
+
+        // Draw background
+        function drawBackground() {
+            // Sky gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#87CEEB');
+            gradient.addColorStop(0.6, '#B0E0E6');
+            gradient.addColorStop(1, '#E0FFFF');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Distant mountains
+            ctx.fillStyle = '#a8c8d8';
+            ctx.beginPath();
+            ctx.moveTo(0, 400);
+            ctx.lineTo(150, 300);
+            ctx.lineTo(300, 380);
+            ctx.lineTo(450, 280);
+            ctx.lineTo(600, 350);
+            ctx.lineTo(750, 290);
+            ctx.lineTo(800, 340);
+            ctx.lineTo(800, 600);
+            ctx.lineTo(0, 600);
+            ctx.fill();
+
+            // Snow caps
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.moveTo(130, 320);
+            ctx.lineTo(150, 300);
+            ctx.lineTo(170, 320);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(430, 300);
+            ctx.lineTo(450, 280);
+            ctx.lineTo(470, 300);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(730, 310);
+            ctx.lineTo(750, 290);
+            ctx.lineTo(770, 310);
+            ctx.fill();
+
+            // Ground snow
+            ctx.fillStyle = '#f0f8ff';
+            ctx.fillRect(0, 500, canvas.width, 100);
+
+            // Snow bumps
+            ctx.fillStyle = '#fff';
+            for (let i = 0; i < canvas.width; i += 60) {
+                ctx.beginPath();
+                ctx.ellipse(i + 30, 500, 40, 15, 0, Math.PI, 0);
+                ctx.fill();
+            }
+
+            // Trees
+            drawTree(50, 470, 0.8);
+            drawTree(720, 480, 0.6);
+            drawTree(680, 490, 0.5);
+        }
+
+        // Draw a pine tree
+        function drawTree(x, y, scale) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(scale, scale);
+
+            // Trunk
+            ctx.fillStyle = '#5D4037';
+            ctx.fillRect(-8, 0, 16, 30);
+
+            // Branches
+            ctx.fillStyle = '#2E7D32';
+            ctx.beginPath();
+            ctx.moveTo(0, -80);
+            ctx.lineTo(-35, 0);
+            ctx.lineTo(35, 0);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(0, -60);
+            ctx.lineTo(-30, -10);
+            ctx.lineTo(30, -10);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(0, -40);
+            ctx.lineTo(-25, -15);
+            ctx.lineTo(25, -15);
+            ctx.fill();
+
+            // Snow on tree
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.moveTo(0, -80);
+            ctx.lineTo(-15, -50);
+            ctx.lineTo(15, -50);
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        // Draw snowflakes
+        function drawSnowflakes() {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            snowflakes.forEach(flake => {
+                ctx.beginPath();
+                ctx.arc(flake.x, flake.y, flake.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                flake.y += flake.speed;
+                flake.x += Math.sin(flake.wobble) * 0.5 + wind * 0.3;
+                flake.wobble += 0.02;
+
+                if (flake.y > canvas.height) {
+                    flake.y = -5;
+                    flake.x = Math.random() * canvas.width;
+                }
+                if (flake.x > canvas.width) flake.x = 0;
+                if (flake.x < 0) flake.x = canvas.width;
+            });
+        }
+
+        // Draw wind indicator
+        function drawWindIndicator() {
+            const centerX = canvas.width / 2;
+            const y = 40;
+
+            // Background
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.fillRect(centerX - 100, y - 15, 200, 30);
+
+            // Wind label
+            ctx.fillStyle = '#fff';
+            ctx.font = '14px "Playfair Display", serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('WIND', centerX, y - 25);
+
+            // Center line
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(centerX, y - 10);
+            ctx.lineTo(centerX, y + 10);
+            ctx.stroke();
+
+            // Wind arrow
+            const arrowX = centerX + wind * 8;
+            ctx.fillStyle = wind > 0 ? '#ff6b6b' : wind < 0 ? '#6baaff' : '#fff';
+            ctx.beginPath();
+            if (wind > 0) {
+                ctx.moveTo(arrowX + 15, y);
+                ctx.lineTo(arrowX, y - 8);
+                ctx.lineTo(arrowX, y + 8);
+            } else if (wind < 0) {
+                ctx.moveTo(arrowX - 15, y);
+                ctx.lineTo(arrowX, y - 8);
+                ctx.lineTo(arrowX, y + 8);
+            } else {
+                ctx.arc(arrowX, y, 5, 0, Math.PI * 2);
+            }
+            ctx.fill();
+
+            // Wind strength text
+            ctx.fillStyle = '#ffd700';
+            ctx.font = 'bold 16px "Cinzel Decorative", serif';
+            const windText = Math.abs(wind).toFixed(1);
+            const direction = wind > 0 ? '→' : wind < 0 ? '←' : '';
+            ctx.fillText(`${direction} ${windText}`, centerX, y + 40);
+        }
+
+        // Draw bucket
+        function drawBucket() {
+            const x = bucket.x;
+            const y = bucket.y;
+            const w = bucket.width;
+            const h = bucket.height;
+
+            // Bucket body (trapezoid)
+            ctx.fillStyle = '#8B4513';
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x - 10, y + h);
+            ctx.lineTo(x + w + 10, y + h);
+            ctx.lineTo(x + w, y);
+            ctx.closePath();
+            ctx.fill();
+
+            // Bucket rim
+            ctx.fillStyle = '#A0522D';
+            ctx.beginPath();
+            ctx.ellipse(x + w / 2, y, w / 2 + 5, 10, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Inner darkness
+            ctx.fillStyle = '#4a2511';
+            ctx.beginPath();
+            ctx.ellipse(x + w / 2, y + 5, w / 2 - 5, 7, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Metal bands
+            ctx.strokeStyle = '#666';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(x - 5, y + 15);
+            ctx.lineTo(x + w + 5, y + 15);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x - 8, y + h - 10);
+            ctx.lineTo(x + w + 8, y + h - 10);
+            ctx.stroke();
+
+            // Handle
+            ctx.strokeStyle = '#555';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.arc(x + w / 2, y - 15, 30, Math.PI * 0.2, Math.PI * 0.8);
+            ctx.stroke();
+        }
+
+        // Draw snowball
+        function drawSnowball(x, y, radius) {
+            const gradient = ctx.createRadialGradient(x - 3, y - 3, 0, x, y, radius);
+            gradient.addColorStop(0, '#ffffff');
+            gradient.addColorStop(0.7, '#e8f4f8');
+            gradient.addColorStop(1, '#b8d4e8');
+
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fillStyle = gradient;
+            ctx.fill();
+
+            // Shine
+            ctx.beginPath();
+            ctx.arc(x - radius * 0.3, y - radius * 0.3, radius * 0.2, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.fill();
+        }
+
+        // Draw aim line
+        function drawAimLine() {
+            if (!isAiming) return;
+
+            const dx = aimStart.x - aimEnd.x;
+            const dy = aimStart.y - aimEnd.y;
+            const power = Math.min(Math.sqrt(dx * dx + dy * dy), 150);
+
+            // Draw power line
+            ctx.strokeStyle = 'rgba(255, 100, 100, 0.8)';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([10, 5]);
+            ctx.beginPath();
+            ctx.moveTo(throwPos.x, throwPos.y);
+            ctx.lineTo(throwPos.x + dx * 0.5, throwPos.y + dy * 0.5);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Calculate trajectory preview
+            const velocityX = dx * 0.12;
+            const velocityY = dy * 0.12;
+            const gravity = 0.3;
+
+            // Draw trajectory dots
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            let px = throwPos.x;
+            let py = throwPos.y;
+            let vx = velocityX;
+            let vy = velocityY;
+
+            for (let i = 0; i < 30; i++) {
+                vx += wind * 0.02;
+                vy += gravity;
+                px += vx;
+                py += vy;
+
+                if (py > 550) break;
+
+                ctx.beginPath();
+                ctx.arc(px, py, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Power meter
+            const meterWidth = 100;
+            const meterHeight = 15;
+            const meterX = 50;
+            const meterY = 550;
+
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+            ctx.fillRect(meterX, meterY, meterWidth, meterHeight);
+
+            const powerPercent = power / 150;
+            const gradient = ctx.createLinearGradient(meterX, meterY, meterX + meterWidth, meterY);
+            gradient.addColorStop(0, '#00ff00');
+            gradient.addColorStop(0.5, '#ffff00');
+            gradient.addColorStop(1, '#ff0000');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(meterX, meterY, meterWidth * powerPercent, meterHeight);
+
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(meterX, meterY, meterWidth, meterHeight);
+
+            ctx.fillStyle = '#fff';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('POWER', meterX + meterWidth / 2, meterY - 5);
+        }
+
+        // Draw character (snowman throwing)
+        function drawCharacter() {
+            const x = throwPos.x - 30;
+            const y = throwPos.y - 60;
+
+            // Body
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(x, y + 50, 25, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x, y + 20, 20, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x, y - 5, 15, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Eyes
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(x - 5, y - 8, 3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + 5, y - 8, 3, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Carrot nose
+            ctx.fillStyle = '#ff6600';
+            ctx.beginPath();
+            ctx.moveTo(x, y - 3);
+            ctx.lineTo(x + 15, y);
+            ctx.lineTo(x, y + 3);
+            ctx.fill();
+
+            // Hat
+            ctx.fillStyle = '#222';
+            ctx.fillRect(x - 15, y - 25, 30, 5);
+            ctx.fillRect(x - 10, y - 45, 20, 22);
+
+            // Arms (sticks)
+            ctx.strokeStyle = '#5D4037';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(x - 20, y + 20);
+            ctx.lineTo(x - 45, y + 5);
+            ctx.stroke();
+
+            // Throwing arm
+            ctx.beginPath();
+            ctx.moveTo(x + 20, y + 20);
+            ctx.lineTo(x + 45, y);
+            ctx.stroke();
+
+            // Buttons
+            ctx.fillStyle = '#222';
+            for (let i = 0; i < 3; i++) {
+                ctx.beginPath();
+                ctx.arc(x, y + 25 + i * 12, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Create splash particles
+        function createSplashParticles(x, y, success) {
+            const color = success ? '#ffd700' : '#fff';
+            for (let i = 0; i < 20; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 10,
+                    vy: (Math.random() - 0.5) * 10 - 3,
+                    size: Math.random() * 6 + 2,
+                    color: success ? (Math.random() > 0.5 ? '#ffd700' : '#fff') : '#fff',
+                    life: 1
+                });
+            }
+        }
+
+        // Update particles
+        function updateParticles() {
+            particles = particles.filter(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.3;
+                p.life -= 0.02;
+
+                if (p.life > 0) {
+                    ctx.globalAlpha = p.life;
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                    return true;
+                }
+                return false;
+            });
+        }
+
+        // Throw snowball
+        function throwSnowball() {
+            const dx = aimStart.x - aimEnd.x;
+            const dy = aimStart.y - aimEnd.y;
+            const power = Math.min(Math.sqrt(dx * dx + dy * dy), 150);
+
+            snowball = {
+                x: throwPos.x,
+                y: throwPos.y,
+                vx: dx * 0.12,
+                vy: dy * 0.12,
+                radius: 12
+            };
+        }
+
+        // Update snowball
+        function updateSnowball() {
+            if (!snowball) return;
+
+            snowball.vx += wind * 0.02;
+            snowball.vy += 0.3; // gravity
+            snowball.x += snowball.vx;
+            snowball.y += snowball.vy;
+
+            // Check if in bucket
+            if (snowball.y > bucket.y && snowball.y < bucket.y + bucket.height) {
+                if (snowball.x > bucket.x && snowball.x < bucket.x + bucket.width) {
+                    // Score!
+                    const distance = Math.abs(bucket.x + bucket.width / 2 - 100);
+                    const bonus = Math.floor(distance / 50) * 10;
+                    score += 100 + bonus;
+                    document.getElementById('currentScore').textContent = score;
+                    createSplashParticles(snowball.x, snowball.y, true);
+                    snowball = null;
+                    nextRound();
+                    return;
+                }
+            }
+
+            // Check if hit ground or out of bounds
+            if (snowball.y > 520 || snowball.x > canvas.width + 50 || snowball.x < -50) {
+                createSplashParticles(snowball.x, Math.min(snowball.y, 520), false);
+                snowball = null;
+                nextRound();
+            }
+        }
+
+        // Next round
+        function nextRound() {
+            round++;
+            document.getElementById('round').textContent = round;
+
+            if (round > maxRounds) {
+                gameOver();
+                return;
+            }
+
+            // New wind
+            targetWind = (Math.random() - 0.5) * 10;
+
+            // Move bucket
+            bucket.x = 300 + Math.random() * 350;
+            bucket.y = 400 + Math.random() * 80;
+        }
+
+        // Game over
+        function gameOver() {
+            gameRunning = false;
+
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('snowballTossHighScore', highScore);
+            }
+
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('highScore').textContent = highScore;
+            document.getElementById('gameOverOverlay').classList.remove('hidden');
+        }
+
+        // Start game
+        function startGame() {
+            gameRunning = true;
+            score = 0;
+            round = 1;
+            snowball = null;
+            particles = [];
+            wind = 0;
+            targetWind = (Math.random() - 0.5) * 6;
+
+            bucket.x = 500;
+            bucket.y = 450;
+
+            document.getElementById('currentScore').textContent = score;
+            document.getElementById('round').textContent = round;
+            document.getElementById('startOverlay').classList.add('hidden');
+            document.getElementById('gameOverOverlay').classList.add('hidden');
+
+            gameLoop();
+        }
+
+        // Game loop
+        function gameLoop() {
+            if (!gameRunning) return;
+
+            frameCount++;
+
+            // Smooth wind transition
+            wind += (targetWind - wind) * 0.02;
+
+            // Draw everything
+            drawBackground();
+            drawSnowflakes();
+            drawWindIndicator();
+            drawBucket();
+            drawCharacter();
+
+            // Draw aim line if aiming
+            drawAimLine();
+
+            // Draw ready snowball if not thrown
+            if (!snowball && !isAiming) {
+                drawSnowball(throwPos.x, throwPos.y, 12);
+            }
+
+            // Update and draw flying snowball
+            if (snowball) {
+                updateSnowball();
+                if (snowball) {
+                    drawSnowball(snowball.x, snowball.y, snowball.radius);
+                }
+            }
+
+            // Update particles
+            updateParticles();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Mouse events
+        canvas.addEventListener('mousedown', (e) => {
+            if (!gameRunning || snowball) return;
+
+            const rect = canvas.getBoundingClientRect();
+            isAiming = true;
+            aimStart.x = e.clientX - rect.left;
+            aimStart.y = e.clientY - rect.top;
+            aimEnd.x = aimStart.x;
+            aimEnd.y = aimStart.y;
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isAiming) return;
+
+            const rect = canvas.getBoundingClientRect();
+            aimEnd.x = e.clientX - rect.left;
+            aimEnd.y = e.clientY - rect.top;
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            if (!isAiming) return;
+
+            isAiming = false;
+            throwSnowball();
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            if (isAiming) {
+                isAiming = false;
+                throwSnowball();
+            }
+        });
+
+        // Button listeners
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('restartBtn').addEventListener('click', startGame);
+
+        // Initial draw
+        drawBackground();
+    </script>
+</body>
+</html>
